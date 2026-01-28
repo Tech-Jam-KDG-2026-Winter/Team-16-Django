@@ -13,3 +13,4 @@ python manage.py runserver
 - /           root check
 - /healthz/   health check
 - /admin/     django admin
+# Team 16 Django Project
