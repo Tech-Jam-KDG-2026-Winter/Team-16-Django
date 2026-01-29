@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+
+    <h1>{{ profile_user.username }} のプロフィール</h1>
+
+    <div class="profile-box">
+        {% if profile.icon %}
+            <img src="{{ profile.icon.url }}" alt="icon" class="profile-icon">
+        {% else %}
+            <img src="{% static 'images/default_icon.png' %}" alt="icon" class="profile-icon">
+        {% endif %}
+
+        <p><strong>ニックネーム：</strong>{{ profile.nickname|default:"未設定" }}</p>
+        <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
+    </div>
+
+    {# ★ここがポイント #}
+    {% if request.user.is_authenticated and request.user == profile_user %}
+        <div class="profile-actions">
+            <a href="{% url 'profile:edit' %}" class="btn btn-primary">
+                プロフィールを編集
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}
