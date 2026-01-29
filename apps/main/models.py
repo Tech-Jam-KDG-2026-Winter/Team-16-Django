@@ -22,6 +22,7 @@ class ExercisePost(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
     duration = models.IntegerField(help_text="運動時間（分）")
+    image = models.ImageField(upload_to='post_images/', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
