@@ -24,27 +24,27 @@
                 プロフィールを編集
             </a>
 
-            <!-- ★ アカウント削除 -->
+            <!-- アカウント削除 -->
             <form method="post"
-                action="{% url 'profile:delete' %}"
-                onsubmit="return confirmDelete();">
+                  action="{% url 'profile:delete' %}"
+                  onsubmit="return confirmDelete();">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-danger">
                     アカウントを削除
                 </button>
             </form>
 
-            <script>
-            function confirmDelete() {
-                return confirm(
-                    "本当にアカウントを削除しますか？\n\n" +
-                    "この操作は取り消せません。"
-                );
-            }
-            </script>
-
         </div>
     {% endif %}
 
 </div>
+
+<script>
+function confirmDelete() {
+    return confirm(
+        "本当にアカウントを削除しますか？\n\n" +
+        "この操作は取り消せません。"
+    );
+}
+</script>
 {% endblock %}

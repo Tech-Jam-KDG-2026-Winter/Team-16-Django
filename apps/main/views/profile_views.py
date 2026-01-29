@@ -38,6 +38,7 @@ def profile_edit(request):
         "form": form,
     })
 
+
 @login_required
 @require_POST
 def profile_delete(request):
