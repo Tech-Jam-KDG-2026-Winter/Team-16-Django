@@ -1,5 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden
 
 from django.contrib.auth.models import User
@@ -36,3 +37,9 @@ def profile_edit(request):
     return render(request, "profile/edit.html", {
         "form": form,
     })
+
+@login_required
+@require_POST
+def profile_delete(request):
+    request.user.delete()
+    return redirect("login")

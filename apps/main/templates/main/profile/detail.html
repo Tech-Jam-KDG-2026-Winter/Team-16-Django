@@ -17,12 +17,32 @@
         <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
     </div>
 
-    {# ★ここがポイント #}
     {% if request.user.is_authenticated and request.user == profile_user %}
         <div class="profile-actions">
+
             <a href="{% url 'profile:edit' %}" class="btn btn-primary">
                 プロフィールを編集
             </a>
+
+            <!-- ★ アカウント削除 -->
+            <form method="post"
+                action="{% url 'profile:delete' %}"
+                onsubmit="return confirmDelete();">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    アカウントを削除
+                </button>
+            </form>
+
+            <script>
+            function confirmDelete() {
+                return confirm(
+                    "本当にアカウントを削除しますか？\n\n" +
+                    "この操作は取り消せません。"
+                );
+            }
+            </script>
+
         </div>
     {% endif %}
 
