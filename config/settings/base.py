@@ -2,7 +2,10 @@ from pathlib import Path
 
 # config/settings/base.py
 # BASE_DIR は manage.py があるディレクトリを指すのが都合が良い
-BASE_DIR = Path(__file__).resolve().parents[3]
+
+
+# base.py は .../Team-16-Django/config/settings/base.py なので parents[3]から[2]に変更
+BASE_DIR = Path(__file__).resolve().parents[2]
 
 SECRET_KEY = "django-insecure-x!e8w94#_z0x*10ek4f^v2*19%1hs167aj8!57htfo@mxalpeg"
 DEBUG = True
@@ -77,3 +80,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/"      # 後でトップページが決まったら変更
+LOGOUT_REDIRECT_URL = "/login/" # ログアウト操作後表示ページ
