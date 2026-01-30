@@ -18,9 +18,20 @@ urlpatterns = [
     # 認証
     path("", include("apps.main.urls.auth_urls")),
 
-    # ★プロフィール
+    # 投稿
+    path("post/", include("apps.main.urls.post_urls")),
+
+    # プロフィール
     path("profile/", include("apps.main.urls.profile_urls")),
-    path("admin/",include(("apps.main.urls.admin_urls", "admin_pages"),namespace="admin_pages"),),
+
+    # 管理画面（独自）
+    path(
+        "admin/",
+        include(
+            ("apps.main.urls.admin_urls", "admin_pages"),
+            namespace="admin_pages"
+        ),
+    ),
 ]
 
 if settings.DEBUG:
