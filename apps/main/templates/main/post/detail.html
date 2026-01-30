@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }}</title>
+</head>
+<body>
+    <h1>{{ post.title }}</h1>
+
+    <p>投稿者：{{ post.user.username }}</p>
+    <p>運動時間：{{ post.duration }} 分</p>
+    <p>投稿日：{{ post.created_at }}</p>
+
+    <hr>
+
+    <p>{{ post.content }}</p>
+
+    <hr>
+
+    {% if request.user == post.user %}
+        <a href="{% url 'post_edit' post.id %}">編集</a>
+
+        <form method="post" action="{% url 'post_delete' post.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">削除</button>
+        </form>
+    {% endif %}
+
+    <br><br>
+    <a href="{% url 'post_list' %}">← 一覧に戻る</a>
+</body>
+</html>
