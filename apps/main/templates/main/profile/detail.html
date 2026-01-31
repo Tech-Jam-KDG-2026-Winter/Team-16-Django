@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="profile-container">
+
+    <h1>{{ profile_user.username }} のプロフィール</h1>
+
+    <div class="profile-box">
+        {% if profile.icon %}
+            <img src="{{ profile.icon.url }}" alt="icon" class="profile-icon">
+        {% else %}
+            <img src="{% static 'images/default_icon.png' %}" alt="icon" class="profile-icon">
+        {% endif %}
+
+        <p><strong>ニックネーム：</strong>{{ profile.nickname|default:"未設定" }}</p>
+        <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
+    </div>
+
+    <h2>{{ profile_user.username }} の投稿</h2>
+    <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
+
+    {% if posts %}
+        <ul class="post-list">
+            {% for post in posts %}
+                <li>
+                    <a href="{% url 'post:detail' post.id %}">
+                        {{ post.title }}
+                    </a>
+                    <small>（{{ post.created_at|date:"Y/m/d" }}）</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>まだ投稿はありません。</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated and request.user == profile_user %}
+        <div class="profile-actions">
+
+            <a href="{% url 'profile:edit' %}" class="btn btn-primary">
+                プロフィールを編集
+            </a>
+
+            <!-- アカウント削除 -->
+            <form method="post"
+                  action="{% url 'profile:delete' %}"
+                  onsubmit="return confirmDelete();">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">
+                    アカウントを削除
+                </button>
+            </form>
+
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+function confirmDelete() {
+    return confirm(
+        "本当にアカウントを削除しますか？\n\n" +
+        "この操作は取り消せません。"
+    );
+}
+</script>
+{% endblock %}

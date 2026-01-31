@@ -1,0 +1,25 @@
+<h1>ユーザー一覧</h1>
+
+<table>
+<tr>
+  <th>ID</th>
+  <th>username</th>
+  <th>状態</th>
+  <th></th>
+</tr>
+
+{% for user in users %}
+<tr>
+  <td>{{ user.id }}</td>
+  <td>{{ user.username }}</td>
+  <td>
+    {% if user.is_active %}有効{% else %}停止{% endif %}
+  </td>
+  <td>
+    <a href="{% url 'dashboard:user_detail' user.id %}">詳細</a>
+  </td>
+</tr>
+{% endfor %}
+
+</table>
+<a href="{% url 'dashboard:dashboard' %}">戻る</a>

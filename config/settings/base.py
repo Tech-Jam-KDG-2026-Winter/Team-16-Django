@@ -21,7 +21,7 @@ INSTALLED_APPS = [
 
     # starter apps
     "apps.common",
-    "apps.main",
+    "apps.main.apps.MainConfig",
 ]
 
 MIDDLEWARE = [

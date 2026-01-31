@@ -1,0 +1,10 @@
+<h1>投稿削除確認</h1>
+
+<p>本当にこの投稿を削除しますか？</p>
+<p>{{ post.content }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">削除する</button>
+  <a href="{% url 'dashboard:post_list' %}">キャンセル</a>
+</form>
