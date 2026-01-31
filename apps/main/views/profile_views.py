@@ -7,14 +7,20 @@ from django.contrib.auth.models import User
 from apps.main.models import Profile
 from apps.main.forms.profile_forms import ProfileForm
 
+from apps.main.models import ExercisePost
+
 
 def profile_detail(request, username):
     user = get_object_or_404(User, username=username)
     profile, _ = Profile.objects.get_or_create(user=user)
 
+    # ★ このユーザーの投稿一覧
+    posts = ExercisePost.objects.filter(user=user).order_by("-created_at")
+
     return render(request, "main/profile/detail.html", {
         "profile_user": user,
         "profile": profile,
+        "posts": posts,   # ← 追加
     })
 
 

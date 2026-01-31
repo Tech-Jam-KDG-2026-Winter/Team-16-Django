@@ -6,5 +6,5 @@
 <form method="post">
   {% csrf_token %}
   <button type="submit">削除する</button>
-  <a href="{% url 'admin_pages:post_list' %}">キャンセル</a>
+  <a href="{% url 'dashboard:post_list' %}">キャンセル</a>
 </form>

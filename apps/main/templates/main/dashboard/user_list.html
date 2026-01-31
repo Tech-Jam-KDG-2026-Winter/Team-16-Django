@@ -16,8 +16,10 @@
     {% if user.is_active %}有効{% else %}停止{% endif %}
   </td>
   <td>
-    <a href="{% url 'admin_pages:user_detail' user.id %}">詳細</a>
+    <a href="{% url 'dashboard:user_detail' user.id %}">詳細</a>
   </td>
 </tr>
 {% endfor %}
+
 </table>
+<a href="{% url 'dashboard:dashboard' %}">戻る</a>

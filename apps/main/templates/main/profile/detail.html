@@ -17,6 +17,24 @@
         <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
     </div>
 
+    <h2>{{ profile_user.username }} の投稿</h2>
+    <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
+
+    {% if posts %}
+        <ul class="post-list">
+            {% for post in posts %}
+                <li>
+                    <a href="{% url 'post:detail' post.id %}">
+                        {{ post.title }}
+                    </a>
+                    <small>（{{ post.created_at|date:"Y/m/d" }}）</small>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>まだ投稿はありません。</p>
+    {% endif %}
+
     {% if request.user.is_authenticated and request.user == profile_user %}
         <div class="profile-actions">
 
