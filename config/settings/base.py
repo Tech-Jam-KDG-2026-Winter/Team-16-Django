@@ -83,5 +83,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 
 LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/"      # 後でトップページが決まったら変更
+LOGIN_REDIRECT_URL = "/post/"      # 後でトップページが決まったら変更
 LOGOUT_REDIRECT_URL = "/login/" # ログアウト操作後表示ページ

@@ -10,7 +10,8 @@ urlpatterns = [
     path("",root),
     path("admin/", admin.site.urls),
     path("healthz/", healthz),
-
+    #投稿
+    path("post/", include("apps.main.urls.post_urls")),
     # 追加：ログイン/ログアウト
     path("", include("apps.main.urls.auth_urls")),
 ]
