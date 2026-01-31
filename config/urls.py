@@ -25,14 +25,9 @@ urlpatterns = [
     path("profile/", include("apps.main.urls.profile_urls")),
 
     # 管理画面（独自）
-    path(
-        "admin/",
-        include(
-            ("apps.main.urls.admin_urls", "admin_pages"),
-            namespace="admin_pages"
-        ),
-    ),
-]
+    path("dashboard/",include("apps.main.urls.admin_urls", "admin_pages",),),
+    
+    ]
 
 if settings.DEBUG:
     urlpatterns += static(
