@@ -34,3 +34,9 @@ if settings.DEBUG:
         settings.MEDIA_URL,
         document_root=settings.MEDIA_ROOT
     )
+    #投稿
+    path("post/", include("apps.main.urls.post_urls")),
+    # 追加：ログイン/ログアウト
+    path("", include("apps.main.urls.auth_urls")),
+
+
