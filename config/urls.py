@@ -9,13 +9,18 @@ from django.conf.urls.static import static
 def root(request):
     return JsonResponse({"service": "django-starter", "status": "ok"})
 
+
 urlpatterns = [
-    path("",root),
+    path("", root),
     path("admin/", admin.site.urls),
     path("healthz/", healthz),
 
-    # 追加：ログイン/ログアウト
+    # 認証
     path("", include("apps.main.urls.auth_urls")),
+
+    # ★プロフィール
+    path("profile/", include("apps.main.urls.profile_urls")),
+    path("admin/",include(("apps.main.urls.admin_urls", "admin_pages"),namespace="admin_pages"),),
 ]
 
 if settings.DEBUG:

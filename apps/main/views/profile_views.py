@@ -12,7 +12,7 @@ def profile_detail(request, username):
     user = get_object_or_404(User, username=username)
     profile, _ = Profile.objects.get_or_create(user=user)
 
-    return render(request, "profile/detail.html", {
+    return render(request, "main/profile/detail.html", {
         "profile_user": user,
         "profile": profile,
     })
@@ -34,13 +34,13 @@ def profile_edit(request):
     else:
         form = ProfileForm(instance=profile)
 
-    return render(request, "profile/edit.html", {
+    return render(request, "main/profile/edit.html", {
         "form": form,
     })
 
 
 @login_required
-@require_POST
 def profile_delete(request):
-    request.user.delete()
-    return redirect("login")
+    if request.method == "POST":
+        request.user.delete()
+        return redirect("login")
