@@ -14,14 +14,14 @@ def post_create(request):
       duration = request.POST['duration'],
     )
     return redirect('post_list')
-  return render(request, 'post/create.html')
+  return render(request, 'main/post/create.html')
 
 
 #投稿一覧
 @login_required
 def post_list(request):
   posts = ExercisePost.objects.select_related('user').order_by('-created_at')
-  return render(request, 'post/list.html', {
+  return render(request, 'main/post/list.html', {
     'posts' : posts
   })
 
@@ -30,7 +30,7 @@ def post_list(request):
 @login_required
 def post_detail(request,post_id):
   post = get_object_or_404(ExercisePost, id=post_id)
-  return render(request, 'post/detail.html',{
+  return render(request, 'main/post/detail.html',{
     'post' : post
   })
 
@@ -50,7 +50,7 @@ def post_edit(request, post_id):
     post.save()
     return redirect('post_detail',post_id = post.id)
   
-  return render(request,'post//edit.html',{
+  return render(request,'main/post//edit.html',{
     'post' : post
   })
 
