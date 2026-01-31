@@ -18,21 +18,25 @@
     </div>
 
     <h2>{{ profile_user.username }} の投稿</h2>
+    {% if request.user.is_authenticated and request.user == profile_user %}
     <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
+    {% endif %}
 
     {% if posts %}
-        <ul class="post-list">
-            {% for post in posts %}
-                <li>
-                    <a href="{% url 'post:detail' post.id %}">
-                        {{ post.title }}
-                    </a>
-                    <small>（{{ post.created_at|date:"Y/m/d" }}）</small>
-                </li>
-            {% endfor %}
-        </ul>
+    <ul>
+        {% for post in posts %}
+            <li>
+                {{ post.title }}
+                {{ post.created_at|date:"Y-m-d" }} /
+                {{ post.content|truncatechars:50 }}
+                <a href="{% url 'post_detail' post.id %}">
+                    詳細
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
     {% else %}
-        <p>まだ投稿はありません。</p>
+    <p>まだ投稿はありません</p>
     {% endif %}
 
     {% if request.user.is_authenticated and request.user == profile_user %}
