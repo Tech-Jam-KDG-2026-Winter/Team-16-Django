@@ -26,6 +26,8 @@ urlpatterns = [
 
     # 管理画面（独自）
     path("dashboard/",include(("apps.main.urls.dashboard_urls", "dashboard")),),
+
+    path("follow/", include("apps.main.urls.follow_urls")),
     
     ]
 
