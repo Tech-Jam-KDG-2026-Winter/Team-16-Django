@@ -1,0 +1,66 @@
+{% block content %}
+<div class="dashboard-container">
+
+    <h1>ユーザー詳細</h1>
+
+    <div class="card">
+        <p><strong>ID：</strong>{{ user_obj.id }}</p>
+        <p><strong>ユーザー名：</strong>{{ user_obj.username }}</p>
+        <p><strong>Email：</strong>{{ user_obj.email }}</p>
+        <p><strong>登録日：</strong>{{ user_obj.date_joined }}</p>
+    </div>
+
+    <hr>
+
+    <h2>プロフィール</h2>
+    {% if profile %}
+        <p><strong>ニックネーム：</strong>{{ profile.nickname|default:"未設定" }}</p>
+        <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
+    {% else %}
+        <p>プロフィールは未作成です。</p>
+    {% endif %}
+
+    <hr>
+    <hr>
+
+<h2>アカウント状態</h2>
+
+<p>
+    現在の状態：
+    {% if user_obj.is_active %}
+        <span style="color: green; font-weight: bold;">有効</span>
+    {% else %}
+        <span style="color: red; font-weight: bold;">無効</span>
+    {% endif %}
+</p>
+
+{% if request.user != user_obj %}
+    <form
+        method="post"
+        action="{% url 'dashboard:user_toggle_active' user_obj.id %}"
+        onsubmit="return confirm('本当にこのユーザーの状態を変更しますか？');"
+    >
+        {% csrf_token %}
+
+        {% if user_obj.is_active %}
+            <button type="submit" class="btn btn-danger">
+                アカウントを無効化
+            </button>
+        {% else %}
+            <button type="submit" class="btn btn-primary">
+                アカウントを有効化
+            </button>
+        {% endif %}
+    </form>
+    {% else %}
+        <p style="color: gray;">
+            ※ 自分自身のアカウント状態は変更できません
+        </p>
+    {% endif %}
+
+    <a href="{% url 'dashboard:user_list' %}" class="btn">
+        ← ユーザー一覧へ戻る
+    </a>
+
+</div>
+{% endblock %}

@@ -2,6 +2,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.models import User
 from apps.main.models import Profile, ExercisePost
+from django.views.decorators.http import require_POST
+from django.http import HttpResponseForbidden
+
 
 @staff_member_required
 def dashboard(request):
@@ -15,21 +18,24 @@ def user_list(request):
     })
 
 @staff_member_required
+@staff_member_required
+@require_POST
 def user_toggle_active(request, user_id):
     user = get_object_or_404(User, id=user_id)
+
+    # 自分自身は変更不可（事故防止）
+    if user == request.user:
+        return HttpResponseForbidden("自分自身の状態は変更できません")
+
     user.is_active = not user.is_active
     user.save()
-    return redirect("dashboard:user_list")
+
+    return redirect("dashboard:user_detail", user_id=user.id)
 
 @staff_member_required
 def user_detail(request, user_id):
     user = get_object_or_404(User, id=user_id)
-    profile = user.profile
-
-    if request.method == "POST":
-        profile.is_banned = True
-        profile.save()
-        return redirect("dashboard:user_list")
+    profile = Profile.objects.get(user=user)
 
     return render(request, "main/dashboard/user_detail.html", {
         "user_obj": user,

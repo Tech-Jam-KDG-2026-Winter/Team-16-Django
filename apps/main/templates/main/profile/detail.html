@@ -4,7 +4,7 @@
 {% block content %}
 <div class="profile-container">
 
-    <h1>{{ profile_user.username }} のプロフィール</h1>
+    <h1>{{ user_obj.username }} のプロフィール</h1>
 
     <div class="profile-box">
         {% if profile.icon %}
@@ -16,26 +16,49 @@
         <p><strong>ニックネーム：</strong>{{ profile.nickname|default:"未設定" }}</p>
         <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
     </div>
-
-    <h2>{{ profile_user.username }} の投稿</h2>
-    <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
-
-    {% if posts %}
-        <ul class="post-list">
-            {% for post in posts %}
-                <li>
-                    <a href="{% url 'post:detail' post.id %}">
-                        {{ post.title }}
-                    </a>
-                    <small>（{{ post.created_at|date:"Y/m/d" }}）</small>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>まだ投稿はありません。</p>
+    {% if request.user.is_authenticated and request.user != user_obj %}
+        <!-- フォローボタン -->
+        <form method="post" action="{% url 'follow:toggle' user_obj.username %}">
+            {% csrf_token %}
+            {% if is_following %}
+            <button>フォロー解除</button>
+            {% else %}
+            <button>フォローする</button>
+            {% endif %}
+        </form>
     {% endif %}
 
-    {% if request.user.is_authenticated and request.user == profile_user %}
+    <a href="{% url 'follow:followers' user_obj.username %}">
+    フォロワー {{ followers_count }}
+    </a>
+
+    <a href="{% url 'follow:following' user_obj.username %}">
+    フォロー中 {{ following_count }}
+    </a>
+
+    <h2>{{ user_obj.username }} の投稿</h2>
+    {% if request.user.is_authenticated and request.user == user_obj %}
+    <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
+    {% endif %}
+
+    {% if posts %}
+    <ul>
+        {% for post in posts %}
+            <li>
+                {{ post.title }}
+                {{ post.created_at|date:"Y-m-d" }} /
+                {{ post.content|truncatechars:50 }}
+                <a href="{% url 'post_detail' post.id %}">
+                    詳細
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>まだ投稿はありません</p>
+    {% endif %}
+
+    {% if request.user.is_authenticated and request.user == user_obj %}
         <div class="profile-actions">
 
             <a href="{% url 'profile:edit' %}" class="btn btn-primary">
