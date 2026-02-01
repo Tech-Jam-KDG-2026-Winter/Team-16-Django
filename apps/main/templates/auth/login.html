@@ -1,20 +1,16 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <title>ログイン</title>
-</head>
-<body>
-  <h1>ログイン</h1>
+{% extends "base.html" %}
 
-  {% if form.errors %}
-    <p>ユーザー名またはパスワードが違います。</p>
-  {% endif %}
+{% block title %}ログイン{% endblock %}
+
+{% block content %}
+  <h1>ログイン</h1>
 
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">ログイン</button>
   </form>
-</body>
-</html>
+
+  <p><a href="{% url 'register' %}">新規登録はこちら</a></p>
+  <p><a href="{% url 'password_reset' %}">パスワードを忘れた方はこちら</a></p>
+{% endblock %}
