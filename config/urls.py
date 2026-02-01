@@ -1,13 +1,19 @@
 from django.contrib import admin
-from django.http import JsonResponse
 from django.urls import path, include
-from apps.common.api.health import healthz
 from django.conf import settings
 from django.conf.urls.static import static
+from django.shortcuts import redirect
+
+from apps.common.api.health import healthz
+
+
 
 
 def root(request):
-    return JsonResponse({"service": "django-starter", "status": "ok"})
+    # 未ログインならログインへ、ログイン済みなら投稿一覧へ
+    if request.user.is_authenticated:
+        return redirect("/post/")
+    return redirect("login")  # auth_urls.py の name="login" を参照
 
 
 urlpatterns = [
@@ -26,7 +32,7 @@ urlpatterns = [
 
     # 管理画面（独自）
     path("dashboard/",include(("apps.main.urls.dashboard_urls", "dashboard")),),
-    
+
     ]
 
 if settings.DEBUG:
