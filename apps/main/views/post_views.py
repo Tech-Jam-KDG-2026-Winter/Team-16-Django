@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render,redirect,get_object_or_404
-from ..models import ExercisePost
+from ..models import ExercisePost, Follow
 
 
 #投稿作成
@@ -30,8 +30,18 @@ def post_list(request):
 @login_required
 def post_detail(request,post_id):
   post = get_object_or_404(ExercisePost, id=post_id)
+
+#フォロー機能
+  is_following = False
+  if request.user != post.user:
+      is_following = Follow.objects.filter(
+          follower=request.user,
+          following=post.user
+      ).exists()
+
   return render(request, 'main/post/detail.html',{
-    'post' : post
+    'post' : post,
+    "is_following": is_following,
   })
 
 
