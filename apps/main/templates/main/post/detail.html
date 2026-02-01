@@ -8,6 +8,22 @@
     <h1>{{ post.title }}</h1>
 
     <p>投稿者：{{ post.user.username }}</p>
+
+    <!-- フォロー機能 -->
+    {% if request.user.is_authenticated and request.user != post.user %}
+        <form method="post" action="{% url 'follow:toggle' post.user.username %}">
+            {% csrf_token %}
+            <button type="submit">
+                {% if is_following %}
+                    フォロー解除
+                {% else %}
+                    フォロー
+                {% endif %}
+            </button>
+        </form>
+    {% endif %}
+    <!-- フォロー機能ここまで -->
+
     <p>運動時間：{{ post.duration }} 分</p>
     <p>投稿日：{{ post.created_at }}</p>
 
