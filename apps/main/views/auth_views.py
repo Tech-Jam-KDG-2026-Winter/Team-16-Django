@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.shortcuts import render, redirect
 from django.conf import settings
+from django.urls import reverse_lazy
 
 from django import forms
 from django.contrib.auth.models import User
@@ -14,8 +15,17 @@ from django.contrib.auth.tokens import default_token_generator
 
 
 # Django 標準の認証ビューを利用
-LoginView = auth_views.LoginView
-LogoutView = auth_views.LogoutView
+class LoginView(auth_views.LoginView):
+    template_name = "auth/login.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("post_list")  # or profile:detail
+        return super().dispatch(request, *args, **kwargs)
+
+LogoutView = auth_views.LogoutView.as_view(
+    next_page=reverse_lazy("top")
+)
 
 
 class RegisterForm(UserCreationForm):
