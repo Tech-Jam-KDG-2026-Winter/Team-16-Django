@@ -3,29 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <title>投稿一覧</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f5f6f8;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+        }
+        .post {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        .post h2 a {
+            text-decoration: none;
+            color: #333;
+        }
+        .author a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #555;
+        }
+        .meta {
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
 </head>
 <body>
+
+<div class="container">
     <h1>運動記録一覧</h1>
 
     <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
     <hr>
 
     {% for post in posts %}
-        <div>
+        <div class="post">
             <h2>
                 <a href="{% url 'post_detail' post.id %}">
                     {{ post.title }}
                 </a>
             </h2>
-            <p>
-                投稿者：{{ post.user.username }} /
-                運動時間：{{ post.duration }}分
+
+            <p class="author">
+                投稿者：
+                <a href="{% url 'profile:detail' post.user.username %}">
+                    {{ post.user.username }}
+                </a>
             </p>
-            <p>投稿日：{{ post.created_at }}</p>
+
+            <p class="meta">
+                運動時間：{{ post.duration }}分 ／ 投稿日：{{ post.created_at }}
+            </p>
+
+            <p>❤️ {{ post.like_count }}</p>
+
+            {% if request.user.is_authenticated %}
+                {% if post.id in liked_post_ids %}
+                    <form method="post" action="{% url 'reaction:unlike' post.id %}">
+                        {% csrf_token %}
+                        <button>いいね解除</button>
+                    </form>
+                {% else %}
+                    <form method="post" action="{% url 'reaction:like' post.id %}">
+                        {% csrf_token %}
+                        <button>いいね</button>
+                    </form>
+                {% endif %}
+            {% endif %}
         </div>
-        <hr>
     {% empty %}
         <p>まだ投稿がありません。</p>
     {% endfor %}
+</div>
+
 </body>
 </html>

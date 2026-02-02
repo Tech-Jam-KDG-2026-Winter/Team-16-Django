@@ -34,6 +34,9 @@ urlpatterns = [
     path("dashboard/",include(("apps.main.urls.dashboard_urls", "dashboard")),),
 
     path("follow/", include("apps.main.urls.follow_urls")),
+
+    #いいね
+    path("reaction/", include("apps.main.urls.reaction_urls")),
     
     ]
 
