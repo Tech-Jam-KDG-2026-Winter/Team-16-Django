@@ -27,6 +27,9 @@ urlpatterns = [
     # 投稿
     path("post/", include("apps.main.urls.post_urls")),
 
+    # 検索・ソート
+    path("post/", include("apps.main.urls.search_urls")),
+
     # プロフィール
     path("profile/", include("apps.main.urls.profile_urls")),
 
