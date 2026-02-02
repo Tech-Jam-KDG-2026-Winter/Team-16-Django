@@ -1,3 +1,5 @@
+{% load static %}
+{% block content %}
 <h1>ユーザー一覧</h1>
 
 <table>
@@ -23,3 +25,4 @@
 
 </table>
 <a href="{% url 'dashboard:dashboard' %}">戻る</a>
+{% endblock %}
