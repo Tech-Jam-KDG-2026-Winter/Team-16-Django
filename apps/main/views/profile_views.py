@@ -22,10 +22,13 @@ def profile_detail(request, username):
             following=user
         ).exists()
 
+    posts = ExercisePost.objects.filter(user=user).order_by("-created_at")
+
     return render(request, "main/profile/detail.html", {
         "user_obj": user,
         "profile": profile,
         "is_following": is_following,
+        "posts": posts,
         "followers_count": user.followers.count(),
         "following_count": user.following.count(),
     })
