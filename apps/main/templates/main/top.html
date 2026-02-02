@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="lp">
+    <h1>MoveShareへようこそ</h1>
+
+    <div class="lp-buttons">
+        <a href="{% url 'login' %}" class="btn primary">ログイン</a>
+        <a href="{% url 'register' %}" class="btn secondary">新規登録</a>
+    </div>
+</div>
+{% endblock %}
