@@ -128,7 +128,7 @@
   <div class="inner">
 
     <div class="topbar">
-      <a class="back-btn" href="{% url 'post_detail' post.id %}">戻る</a>
+      <a class="back-btn" href="{% url 'profile:detail' request.user.username %}">戻る</a>
       <div class="title">投稿編集</div>
       <div class="spacer"></div>
     </div>

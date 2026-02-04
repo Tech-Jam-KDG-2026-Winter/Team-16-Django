@@ -1,114 +1,356 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ post.title }}</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #f5f6f8;
-        }
-        .card {
-            max-width: 700px;
-            margin: 40px auto;
-            background: #fff;
-            padding: 24px;
-            border-radius: 10px;
-        }
-        .author {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .author img {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-        }
-        .author a {
-            text-decoration: none;
-            font-weight: bold;
-            color: #333;
-        }
-        .meta {
-            color: #777;
-            font-size: 14px;
-        }
-        button {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
-<div class="card">
-    <h1>{{ post.title }}</h1>
+{% block main_container %}
+<style>
+  /* ===== 全体の横揺れ・隙間を防止 ===== */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
 
-    <!-- 投稿者（プロフィールリンク） -->
-    <div class="author">
-        <a href="{% url 'profile:detail' post.user.username %}">
-            {% if post.user.profile.image %}
-                <img src="{{ post.user.profile.image.url }}" alt="icon">
-            {% endif %}
-        </a>
-        <a href="{% url 'profile:detail' post.user.username %}">
-            {{ post.user.username }}
-        </a>
+  .page {
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .inner {
+    width: min(390px, 100%);
+    padding: 18px 16px 90px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 2px 12px;
+    width: 100%;
+  }
+
+  .back-btn {
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-weight: 900;
+    border: 2px solid rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .hamburger {
+    width: 54px;
+    height: 46px;
+    border-radius: 14px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+  }
+
+  .hamburger-lines {
+    width: 34px;
+    height: 22px;
+    position: relative;
+  }
+
+  .hamburger-lines span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 999px;
+    background: #111;
+  }
+
+  .hamburger-lines span:nth-child(1) { top: 0; }
+  .hamburger-lines span:nth-child(2) { top: 9px; }
+  .hamburger-lines span:nth-child(3) { bottom: 0; }
+
+  /* ===== Post Card ===== */
+  .card {
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(0,0,0,0.18);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.1);
+    margin-top: 10px;
+  }
+
+  .post-title { font-size: 20px; font-weight: 900; color: #111; margin: 10px 0; }
+  .author-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .author-avatar { width: 44px; height: 44px; border-radius: 999px; overflow: hidden; border: 2px solid rgba(0,0,0,0.1); background: #d9d9d9; }
+  .author-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .username { font-size: 16px; font-weight: 900; color: #111; }
+  .content { font-size: 14px; font-weight: 800; line-height: 1.8; margin: 20px 0; color: rgba(0,0,0,0.75); word-break: break-all; }
+
+  /* ===== Owner Buttons (Edit/Delete) ===== */
+  .owner-row {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .ghost-btn, .danger-btn {
+    height: 48px;
+    border-radius: 14px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 15px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .ghost-btn { border: 2px solid rgba(0,0,0,0.22); background: #fff; color: #111; }
+  .danger-btn { border: 0; background: #ef4444; color: #fff; }
+
+  /* ===== Drawer (一貫性重視) ===== */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.16s ease;
+    z-index: 1000;
+  }
+
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(320px, 86vw);
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    transform: translateX(102%);
+    transition: transform 0.18s ease;
+    box-shadow: -18px 0 30px rgba(0,0,0,0.18);
+    padding: 18px 16px;
+    box-sizing: border-box;
+    z-index: 1001;
+  }
+
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer.open { transform: translateX(0); }
+
+  .drawer-top {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4px 0 10px;
+  }
+
+  .drawer-title { font-size: 22px; font-weight: 900; color: #111; }
+
+  .drawer-close {
+    position: absolute;
+    right: 2px;
+    top: 0;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .drawer-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0 18px;
+    justify-content: center;
+  }
+
+  .drawer-avatar {
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    background: #d9d9d9;
+    border: 2px solid rgba(0,0,0,0.12);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .drawer-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .drawer-name { font-size: 18px; font-weight: 900; color: #111; font-style: italic; }
+
+  .menu {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 12px;
+  }
+
+  .menu a, .menu button {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 10px 8px;
+    border-radius: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .menu a:hover, .menu button:hover { background: rgba(255,255,255,0.55); }
+  .icon { width: 26px; text-align: center; font-size: 22px; }
+
+  /* baseの余白リセット */
+  .site-main, .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+</style>
+
+<div class="page">
+  <div class="inner">
+    <div class="topbar">
+      <a class="back-btn" href="{% url 'post_list' %}">戻る</a>
+      <div style="font-size: 20px; font-weight: 900; letter-spacing: 0.02em;">投稿詳細</div>
+      <button type="button" class="hamburger" id="openDrawer" aria-label="メニューを開く">
+        <div class="hamburger-lines"><span></span><span></span><span></span></div>
+      </button>
     </div>
 
-    <p class="meta">
-        運動時間：{{ post.duration }} 分 ／ 投稿日：{{ post.created_at }}
-    </p>
+    <div class="card">
+      <div class="post-title">{{ post.title }}</div>
+      <div class="author-row">
+        <div class="author-avatar">
+          {% if post.user.profile.icon %}<img src="{{ post.user.profile.icon.url }}">{% endif %}
+        </div>
+        <div class="username">{{ post.user.username }}</div>
+      </div>
+      
+      <div class="content">{{ post.content|linebreaksbr }}</div>
 
-    <!-- フォロー -->
-    {% if request.user.is_authenticated and request.user != post.user %}
-        <form method="post" action="{% url 'follow:toggle' post.user.username %}">
+      {% if request.user == post.user %}
+        <div class="owner-row">
+          <a class="ghost-btn" href="{% url 'post_edit' post.id %}">編集</a>
+          <form method="post" action="{% url 'post_delete' post.id %}" style="margin:0;">
             {% csrf_token %}
-            <button>
-                {% if is_following %}フォロー解除{% else %}フォロー{% endif %}
-            </button>
-        </form>
-    {% endif %}
-
-    <p>❤️ {{ post.like_count }}</p>
-
-    {% if request.user.is_authenticated %}
-        {% if is_liked %}
-            <form method="post" action="{% url 'reaction:unlike' post.id %}">
-                {% csrf_token %}
-                <button>いいね解除</button>
-            </form>
-        {% else %}
-            <form method="post" action="{% url 'reaction:like' post.id %}">
-                {% csrf_token %}
-                <button>いいね</button>
-            </form>
-        {% endif %}
-    {% endif %}
-
-    <hr>
-
-    <p>{{ post.content }}</p>
-
-    {% if request.user == post.user %}
-        <a href="{% url 'post_edit' post.id %}">編集</a>
-        <form method="post" action="{% url 'post_delete' post.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button>削除</button>
-        </form>
-    {% endif %}
-
-    <br><br>
-    <a href="{% url 'post_list' %}">← 一覧に戻る</a>
+            <button class="danger-btn" type="submit" onclick="return confirm('本当に削除しますか？');">削除</button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
-</body>
-</html>
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer" aria-label="設定メニュー">
+  <div class="drawer-top">
+    <div class="drawer-title">設定</div>
+    <button type="button" class="drawer-close" id="closeDrawer" aria-label="閉じる">×</button>
+  </div>
+
+  <div class="drawer-profile">
+    <div class="drawer-avatar">
+      {% if request.user.is_authenticated and request.user.profile.icon %}
+        <img src="{{ request.user.profile.icon.url }}" alt="avatar">
+      {% endif %}
+    </div>
+    <div class="drawer-name">
+      {% if request.user.is_authenticated %}
+        {{ request.user.username }}
+      {% else %}
+        guest
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="menu">
+    <a href="{% url 'post_list' %}">
+      <span class="icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'profile:detail' request.user.username %}">
+        <span class="icon">👤</span>
+        <span>ユーザー設定</span>
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}">
+        <span class="icon">👤</span>
+        <span>ログイン</span>
+      </a>
+    {% endif %}
+
+    <a href="javascript:void(0)" onclick="alert('通知設定は未接続です');">
+      <span class="icon">🔔</span>
+      <span>通知設定</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit">
+          <span class="icon">🚪</span>
+          <span>ログアウト</span>
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</aside>
+
+<script>
+  (function(){
+    const openBtn = document.getElementById('openDrawer');
+    const closeBtn = document.getElementById('closeDrawer');
+    const overlay = document.getElementById('overlay');
+    const drawer = document.getElementById('drawer');
+
+    const open = () => {
+      drawer.classList.add('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden'; 
+    };
+
+    const close = () => {
+      drawer.classList.remove('open');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    };
+
+    openBtn?.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    overlay?.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  })();
+</script>
 {% endblock %}
