@@ -1,91 +1,582 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
-<div class="profile-container">
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
-    <h1>{{ user_obj.username }} のプロフィール</h1>
+{% block main_container %}
 
-    <div class="profile-box">
-        {% if profile.icon %}
-            <img src="{{ profile.icon.url }}" alt="icon" class="profile-icon">
-        {% else %}
-            <img src="{% static 'images/default_icon.png' %}" alt="icon" class="profile-icon">
+<style>
+  /* ===== Profile Detail (スマホ想定 390x844) ===== */
+  .page{
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .inner{
+    width: min(390px, 100%);
+    padding: 18px 16px 90px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* ===== Top bar ===== */
+  .topbar{
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 2px 12px;
+  }
+
+  .back-btn{
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-weight: 900;
+    border: 2px solid rgba(0,0,0,0.55);
+    box-shadow: 0 10px 16px rgba(0,0,0,0.14);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .back-btn:active{ transform: translateY(2px); }
+
+  .top-title{
+    justify-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 22px;
+    font-weight: 900;
+    color: #111;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  .edit-link{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    text-decoration: none;
+    color: #111;
+    font-size: 18px;
+    font-weight: 900;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .edit-link:hover{ background: rgba(255,255,255,0.55); }
+
+  .hamburger{
+    justify-self: end;
+    width: 54px;
+    height: 46px;
+    border-radius: 14px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hamburger-lines{
+    width: 34px;
+    height: 22px;
+    position: relative;
+  }
+  .hamburger-lines span{
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 999px;
+    background: #111;
+  }
+  .hamburger-lines span:nth-child(1){ top: 0; }
+  .hamburger-lines span:nth-child(2){ top: 9px; }
+  .hamburger-lines span:nth-child(3){ bottom: 0; }
+
+  /* ===== Profile header ===== */
+  .profile-head{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .avatar{
+    width: 140px;
+    height: 140px;
+    border-radius: 999px;
+    background: #d9d9d9;
+    border: 2px solid rgba(0,0,0,0.18);
+    overflow: hidden;
+    box-shadow: 0 14px 22px rgba(0,0,0,0.12);
+  }
+  .avatar img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .username{
+    margin-top: 2px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+  }
+
+  .bio{
+    width: 100%;
+    max-width: 360px;
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(0,0,0,0.72);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    word-break: break-word;
+    text-align: left;
+    padding: 0 6px;
+  }
+
+  /* ===== Follow / counts pill ===== */
+  .pill-row{
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .count-pill{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 220px;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(0,0,0,0.22);
+    box-shadow: 0 12px 18px rgba(0,0,0,0.12);
+    text-decoration: none;
+    color: #111;
+    font-weight: 900;
+    gap: 10px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .count-pill:active{ transform: translateY(2px); }
+
+  .count-pill span{
+    font-size: 14px;
+  }
+
+  .follow-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: #fff;
+    border: 2px solid rgba(0,0,0,0.22);
+    box-shadow: 0 12px 18px rgba(0,0,0,0.12);
+    font-weight: 900;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .follow-btn:active{ transform: translateY(2px); }
+
+  /* ===== Posts list ===== */
+  .posts{
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .post-card{
+    position: relative;
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(0,0,0,0.18);
+    border-radius: 18px;
+    padding: 14px 14px 14px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+    overflow: hidden;
+  }
+
+  .post-link{
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .post-title{
+    font-size: 16px;
+    font-weight: 900;
+    color: #111;
+    line-height: 1.2;
+    margin-right: 44px; /* 右上の✎スペース確保 */
+  }
+
+  .post-meta{
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 800;
+    color: rgba(0,0,0,0.45);
+  }
+
+  .post-snippet{
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: rgba(0,0,0,0.75);
+    line-height: 1.6;
+
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3; /* 3行で省略 */
+  }
+
+  .post-empty{
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(0,0,0,0.18);
+    border-radius: 18px;
+    padding: 18px 14px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+    text-align: center;
+    font-weight: 900;
+    color: rgba(0,0,0,0.75);
+  }
+
+  .post-edit-mini{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    color: rgba(0,0,0,0.75);
+    font-size: 18px;
+    font-weight: 900;
+    -webkit-tap-highlight-color: transparent;
+    background: rgba(255,255,255,0.6);
+  }
+  .post-edit-mini:hover{ background: rgba(0,0,0,0.04); }
+
+  /* ===== Drawer ===== */
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.16s ease;
+  }
+  .drawer{
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(320px, 86vw);
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    transform: translateX(102%);
+    transition: transform 0.18s ease;
+    box-shadow: -18px 0 30px rgba(0,0,0,0.18);
+    padding: 18px 16px;
+    box-sizing: border-box;
+  }
+  .drawer.open{ transform: translateX(0); }
+  .overlay.open{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .drawer-top{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4px 0 10px;
+  }
+  .drawer-title{
+    font-size: 22px;
+    font-weight: 900;
+    color: #111;
+  }
+  .drawer-close{
+    position: absolute;
+    right: 2px;
+    top: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 900;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .drawer-profile{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0 18px;
+    justify-content: center;
+  }
+  .drawer-avatar{
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    background: #d9d9d9;
+    border: 2px solid rgba(0,0,0,0.12);
+    overflow: hidden;
+  }
+  .drawer-avatar img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .drawer-name{
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+    font-style: italic;
+  }
+
+  .menu{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 12px;
+  }
+  .menu a, .menu button{
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 10px 8px;
+    border-radius: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu a:hover, .menu button:hover{
+    background: rgba(255,255,255,0.55);
+  }
+  .icon{
+    width: 26px;
+    text-align: center;
+    font-size: 22px;
+  }
+
+  /* base の余白を消す保険 */
+  .site-main, .container{ padding: 0 !important; margin: 0 !important; }
+</style>
+
+<div class="page">
+  <div class="inner">
+
+    <!-- ===== Top bar ===== -->
+    <div class="topbar">
+      <a class="back-btn" href="{% url 'post_list' %}">戻る</a>
+
+      <div class="top-title">
+        プロフィール
+        {% if request.user.is_authenticated and request.user == user_obj %}
+          <a class="edit-link" href="{% url 'profile:edit' %}" aria-label="プロフィール編集">✎</a>
         {% endif %}
+      </div>
 
-        <p><strong>ニックネーム：</strong>{{ profile.nickname|default:"未設定" }}</p>
-        <p><strong>自己紹介：</strong><br>{{ profile.bio|linebreaksbr|default:"未設定" }}</p>
+      <button type="button" class="hamburger" id="openDrawer" aria-label="メニューを開く">
+        <div class="hamburger-lines" aria-hidden="true">
+          <span></span><span></span><span></span>
+        </div>
+      </button>
     </div>
-    {% if request.user.is_authenticated and request.user != user_obj %}
-        <!-- フォローボタン -->
-        <form method="post" action="{% url 'follow:toggle' user_obj.username %}">
+
+    <!-- ===== Profile header ===== -->
+    <div class="profile-head">
+      <div class="avatar" aria-label="アイコン">
+        {% if profile.icon %}
+          <img src="{{ profile.icon.url }}" alt="icon">
+        {% else %}
+          <img src="{% static 'images/default_icon.png' %}" alt="icon">
+        {% endif %}
+      </div>
+
+      <div class="username">{{ user_obj.username }}</div>
+
+      <div class="bio">
+        {% if profile.bio %}
+          {{ profile.bio|linebreaksbr }}
+        {% else %}
+          未設定
+        {% endif %}
+      </div>
+
+      <div class="pill-row">
+        <a class="count-pill" href="{% url 'follow:followers' user_obj.username %}">
+          <span>フォロワー {{ followers_count }}</span>
+          <span>l</span>
+          <span>フォロー中 {{ following_count }}</span>
+        </a>
+
+        {% if request.user.is_authenticated and request.user != user_obj %}
+          <form method="post" action="{% url 'follow:toggle' user_obj.username %}" style="margin:0;">
             {% csrf_token %}
-            {% if is_following %}
-            <button>フォロー解除</button>
-            {% else %}
-            <button>フォローする</button>
-            {% endif %}
-        </form>
-    {% endif %}
+            <button type="submit" class="follow-btn">
+              {% if is_following %}フォロー解除{% else %}フォロー{% endif %}
+            </button>
+          </form>
+        {% endif %}
+      </div>
+    </div>
 
-    <a href="{% url 'follow:followers' user_obj.username %}">
-    フォロワー {{ followers_count }}
-    </a>
-
-    <a href="{% url 'follow:following' user_obj.username %}">
-    フォロー中 {{ following_count }}
-    </a>
-
-    <h2>{{ user_obj.username }} の投稿</h2>
-    {% if request.user.is_authenticated and request.user == user_obj %}
-    <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
-    {% endif %}
-
-    {% if posts %}
-    <ul>
+    <!-- ===== Posts ===== -->
+    <div class="posts">
+      {% if posts %}
         {% for post in posts %}
-            <li>
-                {{ post.title }}
-                {{ post.created_at|date:"Y-m-d" }} /
-                {{ post.content|truncatechars:50 }}
-                <a href="{% url 'post_detail' post.id %}">
-                    詳細
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-    {% else %}
-    <p>まだ投稿はありません</p>
-    {% endif %}
+          <div class="post-card">
 
-    {% if request.user.is_authenticated and request.user == user_obj %}
-        <div class="profile-actions">
+            {% if request.user.is_authenticated and request.user == user_obj %}
+              <a class="post-edit-mini" href="{% url 'post_edit' post.id %}" aria-label="投稿を編集">✎</a>
+            {% endif %}
 
-            <a href="{% url 'profile:edit' %}" class="btn btn-primary">
-                プロフィールを編集
+            <a class="post-link" href="{% url 'post_detail' post.id %}">
+              <div class="post-title">{{ post.title }}</div>
+
+              <div class="post-meta">
+                {{ post.created_at|date:"Y/m/d H:i" }} ／ {{ post.duration }}分
+              </div>
+
+              {% if post.content %}
+                <div class="post-snippet">{{ post.content }}</div>
+              {% endif %}
             </a>
 
-            <!-- アカウント削除 -->
-            <form method="post"
-                  action="{% url 'profile:delete' %}"
-                  onsubmit="return confirmDelete();">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">
-                    アカウントを削除
-                </button>
-            </form>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="post-empty">まだ投稿はありません</div>
+      {% endif %}
+    </div>
 
-        </div>
-    {% endif %}
-
+  </div>
 </div>
 
+<!-- ===== Drawer + Overlay ===== -->
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="設定メニュー">
+  <div class="drawer-top">
+    <div class="drawer-title">設定</div>
+    <button type="button" class="drawer-close" id="closeDrawer" aria-label="閉じる">×</button>
+  </div>
+
+  <div class="drawer-profile">
+    <div class="drawer-avatar" aria-hidden="true">
+      {% if request.user.is_authenticated and request.user.profile.icon %}
+        <img src="{{ request.user.profile.icon.url }}" alt="icon">
+      {% endif %}
+    </div>
+    <div class="drawer-name">
+      {% if request.user.is_authenticated %}
+        {{ request.user.username }}
+      {% else %}
+        guest
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="menu">
+    <a href="{% url 'post_list' %}">
+      <span class="icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'profile:detail' request.user.username %}">
+        <span class="icon">👤</span>
+        <span>ユーザー設定</span>
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}">
+        <span class="icon">👤</span>
+        <span>ログイン</span>
+      </a>
+    {% endif %}
+
+    <a href="javascript:void(0)" onclick="alert('通知設定は未接続です');">
+      <span class="icon">🔔</span>
+      <span>通知設定</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit">
+          <span class="icon">🚪</span>
+          <span>ログアウト</span>
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</aside>
+
 <script>
-function confirmDelete() {
-    return confirm(
-        "本当にアカウントを削除しますか？\n\n" +
-        "この操作は取り消せません。"
-    );
-}
+  // ===== Drawer open/close =====
+  (function(){
+    const openBtn = document.getElementById('openDrawer');
+    const closeBtn = document.getElementById('closeDrawer');
+    const overlay = document.getElementById('overlay');
+    const drawer = document.getElementById('drawer');
+
+    function open(){
+      overlay.classList.add('open');
+      drawer.classList.add('open');
+    }
+    function close(){
+      overlay.classList.remove('open');
+      drawer.classList.remove('open');
+    }
+
+    openBtn?.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    overlay?.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  })();
 </script>
+
 {% endblock %}
