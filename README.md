@@ -1,93 +1,174 @@
-# Django Team Starter
+# MoveShare 
+運動を「孤独な努力」から「共有する楽しみ」へ　
 
-## Setup
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install django==6.0.1
-python manage.py migrate
-python manage.py runserver
-```
+運動が続かない最大の理由は、一人で成果が見えにくいことにあります。本アプリは、日々の運動を記録・共有し、仲間からのリアクションを得ることで、習慣化を強力にサポートするSNSプラットフォームです。
 
-## Endpoints
-- /           root check
-- /healthz/   health check
-- /admin/     django admin
-# Team 16 Django Project
+<img src="https://github.com/user-attachments/assets/0d5778b6-6670-4b82-85cd-36141e5632b7" width="100%">
 
-## **2. 機能一覧**
 
-## 🧑‍💻 ユーザー関連機能
+## 開発の背景（課題と解決策）
+課題：なぜ運動は続かないのか？
+孤独感： 一人だとモチベーションを維持しにくい。
 
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| U-001 | ユーザー登録 | 新規ユーザーを登録 | メール・ユーザー名・パスワード登録 | High |
-| U-002 | ログイン | 認証処理 | セッション管理 / 未ログイン制御 | High |
-| U-003 | ログアウト | セッション終了 | ログアウト処理 | High |
-| U-004 | プロフィール閲覧 | ユーザー情報表示 | アイコン・自己紹介・投稿履歴表示 | High |
-| U-005 | プロフィール編集 | ユーザー情報編集 | アイコン画像・自己紹介更新 | Middle |
-| U-006 | パスワード再設定 | PW再発行機能 | 再設定メール送信 / 新PW設定 | Middle |
-| U-007 | アカウント削除 | ユーザー退会 | アカウント・関連データ削除 | Low |
+実感の薄さ： 成果が出るまでに時間がかかり、途中で挫折してしまう。
+
+既存アプリの不満： 記録するだけの「自己完結型」が多く、他者との繋がりが薄い。
+
+解決策：共有と反応が習慣を作る
+可視化と共有： 自分の頑張りを投稿し、仲間からの「いいね」で承認欲求を満たす。
+
+相互刺激： 他のユーザーの活動がタイムラインに流れることで、自分もやろうという刺激を受ける。
+
+手軽さの追求： 記録の心理的ハードルを下げ、スマホでサッと報告できる環境を提供。
+
+## 実装のこだわり
+「スマホファースト」な操作性
+
+外出先や運動直後に手軽に投稿・閲覧ができるよう、モバイルでの利用を想定したUI/UXを設計しました。
+
+情報の引き算（シンプルデザイン）
+
+画面全体のトーンに統一感を持たせ、余計な情報を削ぎ落とすことで「今、何をすべきか（投稿・確認）」が直感的にわかるデザインを意識しました。
+
+モチベーション維持の仕組み
+
+リアクション（いいね）機能を核に据え、自分一人の記録で終わらせない「つながり」を重視した機能構成にしています。
+
+## 機能一覧
+機能を整理し、優先度の高いものを中心に構成しています。
+
+### 1. 運動記録・SNS機能
+運動投稿： タイトル、時間、内容をサクッと記録。
+
+タイムライン： 自分や他ユーザーの投稿を一覧で表示。
+
+リアクション（いいね）： 仲間の投稿を応援し、モチベーションを循環。
+
+フォロー機能： 特定の仲間と繋がり、活動を追いやすくする。
+
+### 2. ユーザー管理機能
+アカウント管理： 新規登録、ログイン、パスワード再設定。
+
+プロフィール： 自己紹介や過去の投稿履歴の閲覧・編集。
+
+### 3. 管理者向け機能
+ダッシュボード： 全ユーザー・全投稿の状況把握。
+
+コンテンツ管理： 不適切なユーザーの停止（BAN）や投稿の削除権限。
+## 技術スタック
+
+### バックエンド
+
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-4%2F5-darkgreen?logo=django&logoColor=white)
+
+- Python 3.x  
+- Django 4.x / 5.x  
+---
+
+### フロントエンド
+
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+
+- Mobile First UI (390x844)
+- Custom CSS Card Design
 
 ---
 
-## 🏃‍♂️ 運動記録（投稿）機能
+### データベース
 
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| P-001 | 記録作成 | 運動内容を投稿 | タイトル・内容・運動時間 | High |
-| P-002 | 記録一覧表示 | 投稿一覧を表示 | 他ユーザー含む全体タイムライン | High |
-| P-003 | 記録詳細表示 | 投稿詳細を表示 | 投稿内容・いいね数表示 | High |
-| P-004 | 記録編集 | 投稿内容修正 | 自分の投稿のみ編集可能 | Middle |
-| P-005 | 記録削除 | 投稿削除 | 自分の投稿のみ削除可能 | Middle |
+![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
 
+- SQLite3
 ---
 
-## ❤️ リアクション（自己肯定感向上）
+### 管理
 
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| R-001 | いいね付与 | 投稿を応援 | 1ユーザー1投稿1いいね | High |
-| R-002 | いいね解除 | 応援取消 | 再クリックで解除 | Middle |
-| R-003 | いいね数表示 | 反応の可視化 | 投稿一覧・詳細に表示 | High |
+![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)
 
----
+- GitHub
+## アプリ画面
 
-## 🔐 管理者機能
+<table>
+<tr>
+<td align="center">
 
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| A-000 | 管理者トップページ | 管理者機能 | 管理者用ダッシュボード / 各管理機能へのリンク表示 | High |
-| A-001 | ユーザー一覧閲覧 | 管理者機能 | 全ユーザーを一覧表示 | High |
-| A-002 | ユーザー停止/有効化 | 管理者機能 | ユーザーのログイン可否切替 | High |
-| A-003 | ユーザーBAN | 管理者機能 | BAN設定・理由・日時登録 | High |
-| A-004 | 投稿一覧管理 | 管理者機能 | 全投稿を一覧表示 | High |
-| A-005 | 投稿削除（管理者権限） | 管理者機能 | 任意投稿を削除可能 | High |
+### トップ画面
+
+<img width="533" height="725" alt="TOP" src="https://github.com/user-attachments/assets/4d009317-5edd-4eb2-99aa-77230bf07cab" width="250">
+
+</td>
+
+<td align="center">
+
+### ログイン画面
+
+<img width="531" height="729" alt="LOGIN" src="https://github.com/user-attachments/assets/940cba66-d9f8-4c98-9f76-e6ba3328ccca" width="250">
+
+</td>
+</tr>
+<tr>
+<td align="center">
+
+### 新規登録画面
+
+<img width="527" height="719" alt="NEW" src="https://github.com/user-attachments/assets/b473f642-1d53-40a9-b759-ccba2cfb0372" width="250">
+
+</td>
+
+<td align="center">
+
+### パスワード再登録画面
+
+<img width="530" height="728" alt="PASS" src="https://github.com/user-attachments/assets/86dbb6a7-0e0c-403b-8047-576bd872bea6" width="250">
+
+</td>
+</tr>
+<tr>
+<td align="center">
+
+### 投稿一覧画面
+
+<img width="519" height="724" alt="LIST" src="https://github.com/user-attachments/assets/bbd5cb8b-33b1-477c-a47a-094a6592f4d2" width="250">
+
+</td>
+
+<td align="center">
+
+### プロフィール画面
+
+<img width="530" height="728" alt="PASS" src="https://github.com/user-attachments/assets/86dbb6a7-0e0c-403b-8047-576bd872bea6" width="250">
+
+</td>
+</tr>
+<tr>
+<td align="center">
+
+### 投稿作成画面
+
+<img width="527" height="726" alt="POST" src="https://github.com/user-attachments/assets/ccb5bf43-268f-4ad1-8e6d-38895d7ed34f" width="250">
+
+</td>
+
+<td align="center">
+
+### 投稿編集画面
+
+<img width="530" height="728" alt="PASS" src="https://github.com/user-attachments/assets/86dbb6a7-0e0c-403b-8047-576bd872bea6" width="250">
+
+</td>
+</tr>
+</table>
 
 
-## 🔐 共通・システム機能
 
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| C-001 | 未ログイン制限 | アクセス制御 | 未ログイン時はログイン画面へ | High |
-| C-002 | ログイン後遷移制御 | 画面制御 | ログイン後トップ画面へ遷移 | High |
+## 画面遷移図
+<img width="801" height="511" alt="Move_page" src="https://github.com/user-attachments/assets/a19b155d-6bac-4bee-9b0b-4976dc763a1d" />
+
+## ER図
+<img width="1008" height="787" alt="Move_ER" src="https://github.com/user-attachments/assets/a23046eb-11f6-424e-8e85-7f1c391b044b" />
 
 
-## 👥 フォロー機能（Best）
-
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| F-001 | フォロー | ユーザーをフォロー | フォロー/解除切替 | Middle |
-| F-002 | フォロワー一覧 | フォロワー表示 | フォロワー・フォロー中一覧 | Low |
-
----
-
-## 🔍 検索・表示補助機能（Best）
-
-| 機能ID | 機能名 | 概要 | 詳細内容 | 優先度 |
-| --- | --- | --- | --- | --- |
-| S-001 | 投稿検索 | 投稿検索 | タイトル・内容で検索 | Low |
-| S-002 | 投稿ソート | 並び替え | 新着順・いいね数順 | Low |
-
----
 
