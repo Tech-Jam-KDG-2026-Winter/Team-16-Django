@@ -137,9 +137,9 @@
 
 <td align="center">
 
-### プロフィール画面
+### 投稿詳細画面
 
-<img width="530" height="728" alt="PASS" src="https://github.com/user-attachments/assets/86dbb6a7-0e0c-403b-8047-576bd872bea6" width="250">
+<img width="516" height="716" alt="DETAIL" src="https://github.com/user-attachments/assets/1d98bf79-ecfc-4483-b723-570cfd79a465" width="250">
 
 </td>
 </tr>
@@ -156,7 +156,42 @@
 
 ### 投稿編集画面
 
-<img width="530" height="728" alt="PASS" src="https://github.com/user-attachments/assets/86dbb6a7-0e0c-403b-8047-576bd872bea6" width="250">
+<img width="517" height="720" alt="POSTDIT" src="https://github.com/user-attachments/assets/09a3551b-e61a-44e3-91c2-5c72cd5d8569" width="250">
+
+</td>
+</tr>
+<tr>
+<td align="center">
+
+### プロフィール画面
+
+<img width="530" height="729" alt="PRO" src="https://github.com/user-attachments/assets/9807b12e-6835-4ecc-af28-ab19c8454b7b" width="250">
+
+</td>
+
+<td align="center">
+
+### プロフィール編集画面
+
+<img width="497" height="723" alt="EDIT" src="https://github.com/user-attachments/assets/55105f7d-fbcc-4a06-abbb-48b29eec9d76" width="250">
+
+</td>
+</tr>
+
+<tr>
+<td align="center">
+
+### フォロー一覧画面
+
+<img width="513" height="718" alt="FOLLOW" src="https://github.com/user-attachments/assets/1a3716f9-4770-4426-82b2-481e294fb75c" width="250">
+
+</td>
+
+<td align="center">
+
+### ナビゲーションメニュー
+
+<img width="521" height="712" alt="NAVI" src="https://github.com/user-attachments/assets/b149db10-d55c-46ff-bf27-f2224b0ee14d" width="250">
 
 </td>
 </tr>
