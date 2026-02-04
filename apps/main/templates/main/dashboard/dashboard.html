@@ -5,5 +5,11 @@
 <ul>
   <li><a href="{% url 'dashboard:user_list' %}">ユーザー管理</a></li>
   <li><a href="{% url 'dashboard:post_list' %}">投稿管理</a></li>
+  <li>
+    <form method="post" action="{% url 'logout' %}" class="logout-form">
+              {% csrf_token %}
+              <button type="submit" class="logout-btn">ログアウト</button>
+            </form>
+  </li>
 </ul>
 {% endblock %}

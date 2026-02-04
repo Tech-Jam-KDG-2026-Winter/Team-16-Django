@@ -19,9 +19,20 @@ class LoginView(auth_views.LoginView):
     template_name = "auth/login.html"
 
     def dispatch(self, request, *args, **kwargs):
+        # すでにログイン済みなら適切な場所へ
         if request.user.is_authenticated:
-            return redirect("post_list")  # or profile:detail
+            return redirect(self.get_success_url())
         return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        user = self.request.user
+
+        # 管理者は dashboard
+        if user.is_staff or user.is_superuser:
+            return "/dashboard/"
+
+        # 一般ユーザー
+        return reverse_lazy("post_list")
 
 LogoutView = auth_views.LogoutView.as_view(
     next_page=reverse_lazy("top")
