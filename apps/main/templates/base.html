@@ -1,66 +1,69 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}My Site{% endblock %}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}My Site{% endblock %}</title>
 
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  {% block head %}{% endblock %}
 </head>
 <body>
 
+{% block header %}
 <header class="site-header">
-    <div class="container header-inner">
+  <div class="container header-inner">
 
-        <h1 class="logo">
-            <a href="/">My Site</a>
-        </h1>
+    <h1 class="logo">
+      <a href="/">My Site</a>
+    </h1>
 
-        <nav class="nav">
-            <ul class="nav-list">
-                {% if request.user.is_authenticated %}
-                    <li>
-                        <a href="{% url 'post_list' %}">運動記録一覧</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'profile:detail' request.user.username %}">
-                            マイページ
-                        </a>
-                    </li>
-                    <li>
-                        <form method="post" action="{% url 'logout' %}" class="logout-form">
-                            {% csrf_token %}
-                            <button type="submit" class="logout-btn">
-                                ログアウト
-                            </button>
-                        </form>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="{% url 'login' %}">ログイン</a>
-                        <a href="{% url 'register' %}">新規登録</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
+    <nav class="nav">
+      <ul class="nav-list">
+        {% if request.user.is_authenticated %}
+          <li>
+            <a href="{% url 'post_list' %}">運動記録一覧</a>
+          </li>
 
-    </div>
+          <li>
+            <a href="{% url 'profile:detail' request.user.username %}">
+              マイページ
+            </a>
+          </li>
+
+          <li>
+            <form method="post" action="{% url 'logout' %}" class="logout-form">
+              {% csrf_token %}
+              <button type="submit" class="logout-btn">ログアウト</button>
+            </form>
+          </li>
+        {% else %}
+          <li><a href="{% url 'login' %}">ログイン</a></li>
+          <li><a href="{% url 'register' %}">新規登録</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+
+  </div>
 </header>
+{% endblock %}
 
 <main class="site-main">
+  {% block main_container %}
     <div class="container">
-        {% block content %}
-        {% endblock %}
+      {% block content %}{% endblock %}
     </div>
+  {% endblock %}
 </main>
 
+{% block footer %}
 <footer class="site-footer">
-    <div class="container">
-        <p>&copy; {{ now|date:"Y" }} My Site</p>
-    </div>
+  <div class="container">
+    <p>&copy; {% now "Y" %} My Site</p>
+  </div>
 </footer>
+{% endblock %}
 
 </body>
 </html>

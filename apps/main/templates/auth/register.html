@@ -1,14 +1,234 @@
+{% extends "base.html" %}
 {% load static %}
-<!-- {% block title %}ユーザー登録{% endblock %} -->
 
-{% block content %}
-  <h1>ユーザー登録</h1>
+{# 新規登録画面は1枚画面にする #}
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">登録</button>
-  </form>
+{% block main_container %}
 
-  <p><a href="{% url 'top' %}">トップへ戻る</a></p>
+<style>
+  /* ===== Register (スマホ想定 390x844) ===== */
+  .auth-page{
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .auth-inner{
+    width: min(390px, 100%);
+    padding: 28px 18px 40px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  /* 戻るボタン */
+  .back-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-weight: 800;
+    border: 2px solid rgba(0,0,0,0.65);
+    box-shadow: 0 10px 16px rgba(0,0,0,0.16);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .back-btn:active{
+    transform: translateY(2px) scale(0.99);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+  }
+
+  /* 中央ブロック */
+  .auth-content{
+    margin-top: 62px; /* 4項目なので少し上に */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .auth-title{
+    margin: 10px 0 28px;
+    font-size: 42px;
+    font-weight: 900;
+    color: #0f0f0f;
+  }
+
+  /* 入力欄 */
+  .field{
+    width: 100%;
+    max-width: 360px;
+    margin-bottom: 16px;
+  }
+
+  .input{
+    width: 100%;
+    height: 56px;
+    border-radius: 999px;
+    padding: 0 18px;
+    font-size: 16px;
+    border: 2px solid rgba(0,0,0,0.75);
+    background: rgba(255,255,255,0.9);
+    outline: none;
+    box-sizing: border-box;
+    transition: box-shadow 0.15s ease;
+  }
+
+  .input::placeholder{
+    color: rgba(0,0,0,0.45);
+    font-weight: 700;
+  }
+
+  .input:focus{
+    box-shadow: 0 0 0 4px rgba(0,120,255,0.18);
+  }
+
+  /* 確定ボタン */
+  .submit-btn{
+    margin-top: 18px;
+    width: 120px;
+    height: 46px;
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0.55);
+    background: #fff;
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 12px 18px rgba(0,0,0,0.20);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .submit-btn:active{
+    transform: translateY(2px) scale(0.99);
+    box-shadow: 0 7px 12px rgba(0,0,0,0.22);
+  }
+
+  /* 下リンク */
+  .below{
+    margin-top: 34px;
+    text-align: center;
+    line-height: 1.8;
+  }
+  .below p{
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .below a{
+    color: #1d4ed8;
+    font-weight: 900;
+    text-decoration: underline;
+  }
+
+  /* エラー表示 */
+  .form-errors{
+    width: 100%;
+    max-width: 360px;
+    background: rgba(255,255,255,0.95);
+    border: 1px solid rgba(255,0,0,0.25);
+    color: #b91c1c;
+    padding: 10px 12px;
+    border-radius: 14px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* base の container 余白対策 */
+  .site-main, .container{
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+</style>
+
+<div class="auth-page">
+  <div class="auth-inner">
+
+    <a class="back-btn" href="{% url 'top' %}">戻る</a>
+
+    <div class="auth-content">
+      <h1 class="auth-title">新規登録</h1>
+
+      {% if form.errors %}
+        <div class="form-errors">
+          入力内容を確認してください。
+        </div>
+      {% endif %}
+
+      <form method="post" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+        {% csrf_token %}
+
+        {# ユーザー名 #}
+        <div class="field">
+          <input
+            class="input"
+            type="text"
+            name="username"
+            autocomplete="username"
+            placeholder="ユーザー名"
+            value="{{ form.username.value|default_if_none:'' }}"
+            required
+          >
+        </div>
+
+        {# メールアドレス #}
+        <div class="field">
+          <input
+            class="input"
+            type="email"
+            name="email"
+            autocomplete="email"
+            placeholder="メールアドレス"
+            value="{{ form.email.value|default_if_none:'' }}"
+            required
+          >
+        </div>
+
+        {# パスワード #}
+        <div class="field">
+          <input
+            class="input"
+            type="password"
+            name="password1"
+            autocomplete="new-password"
+            placeholder="パスワード"
+            required
+          >
+        </div>
+
+        {# パスワード確認 #}
+        <div class="field">
+          <input
+            class="input"
+            type="password"
+            name="password2"
+            autocomplete="new-password"
+            placeholder="パスワード確認"
+            required
+          >
+        </div>
+
+        <button class="submit-btn" type="submit">確定</button>
+      </form>
+
+      <div class="below">
+        <p>すでにアカウントをお持ちですか？</p>
+        <p><a href="{% url 'login' %}">ログインはこちら</a></p>
+        <p style="margin-top:12px;">パスワードをお忘れですか？</p>
+        <p><a href="{% url 'password_reset' %}">パスワードの再登録</a></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 {% endblock %}
