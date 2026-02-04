@@ -344,6 +344,16 @@
     border-radius: 999px;
     background: #d9d9d9;
     border: 2px solid rgba(0,0,0,0.12);
+    overflow: hidden; /* 画像を丸く切り抜くために必須 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .drawer-avatar img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 縦横比を維持してフィットさせる */
+    display: block;
   }
   .drawer-name{
     font-size: 18px;
@@ -513,7 +523,11 @@
   </div>
 
   <div class="drawer-profile">
-    <div class="drawer-avatar" aria-hidden="true"></div>
+    <div class="drawer-avatar">
+      {% if request.user.is_authenticated and request.user.profile.icon %}
+        <img src="{{ request.user.profile.icon.url }}" alt="avatar">
+      {% endif %}
+    </div>
     <div class="drawer-name">
       {% if request.user.is_authenticated %}
         {{ request.user.username }}
@@ -668,7 +682,7 @@
           }
           alert('通信に失敗しました。ネットワークを確認してください。');
         }
-      });
+    });
     });})();
 </script>
 

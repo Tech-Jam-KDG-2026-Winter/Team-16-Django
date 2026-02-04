@@ -5,18 +5,26 @@
 {% block footer %}{% endblock %}
 
 {% block main_container %}
-
 <style>
-  /* ===== Post Detail (スマホ想定 390x844) ===== */
-  .page{
+  /* ===== 全体の横揺れ・隙間を防止 ===== */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page {
     min-height: 100vh;
     width: 100%;
     background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
     display: flex;
     justify-content: center;
     box-sizing: border-box;
+    overflow-x: hidden;
   }
-  .inner{
+
+  .inner {
     width: min(390px, 100%);
     padding: 18px 16px 90px;
     box-sizing: border-box;
@@ -24,39 +32,29 @@
   }
 
   /* ===== Top bar ===== */
-  .topbar{
+  .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 6px 2px 12px;
+    width: 100%;
   }
 
-  .back-btn{
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  .back-btn {
     height: 44px;
     padding: 0 18px;
     border-radius: 999px;
-    background: rgba(255,255,255,0.92);
+    background: #fff;
     color: #111;
     text-decoration: none;
     font-weight: 900;
     border: 2px solid rgba(0,0,0,0.35);
-    box-shadow: 0 10px 16px rgba(0,0,0,0.14);
-    -webkit-tap-highlight-color: transparent;
-  }
-  .back-btn:active{ transform: translateY(2px); }
-
-  .title{
-    font-size: 22px;
-    font-weight: 900;
-    color: #111;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
   }
 
-  .hamburger{
+  .hamburger {
     width: 54px;
     height: 46px;
     border-radius: 14px;
@@ -66,13 +64,16 @@
     display: grid;
     place-items: center;
     -webkit-tap-highlight-color: transparent;
+    padding: 0;
   }
-  .hamburger-lines{
+
+  .hamburger-lines {
     width: 34px;
     height: 22px;
     position: relative;
   }
-  .hamburger-lines span{
+
+  .hamburger-lines span {
     position: absolute;
     left: 0;
     right: 0;
@@ -80,178 +81,65 @@
     border-radius: 999px;
     background: #111;
   }
-  .hamburger-lines span:nth-child(1){ top: 0; }
-  .hamburger-lines span:nth-child(2){ top: 9px; }
-  .hamburger-lines span:nth-child(3){ bottom: 0; }
 
-  /* ===== Card ===== */
-  .card{
-    margin-top: 10px;
+  .hamburger-lines span:nth-child(1) { top: 0; }
+  .hamburger-lines span:nth-child(2) { top: 9px; }
+  .hamburger-lines span:nth-child(3) { bottom: 0; }
+
+  /* ===== Post Card ===== */
+  .card {
     background: rgba(255,255,255,0.92);
     border: 2px solid rgba(0,0,0,0.18);
     border-radius: 22px;
-    padding: 14px 14px 16px;
-    box-shadow: 0 10px 18px rgba(0,0,0,0.10);
-    overflow: hidden;
+    padding: 18px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.1);
+    margin-top: 10px;
   }
 
-  .post-title{
-    font-size: 20px;
-    font-weight: 900;
-    color: #111;
-    line-height: 1.25;
-    margin: 6px 0 10px;
-  }
+  .post-title { font-size: 20px; font-weight: 900; color: #111; margin: 10px 0; }
+  .author-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .author-avatar { width: 44px; height: 44px; border-radius: 999px; overflow: hidden; border: 2px solid rgba(0,0,0,0.1); background: #d9d9d9; }
+  .author-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .username { font-size: 16px; font-weight: 900; color: #111; }
+  .content { font-size: 14px; font-weight: 800; line-height: 1.8; margin: 20px 0; color: rgba(0,0,0,0.75); word-break: break-all; }
 
-  .author-row{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 4px;
-  }
-
-  .author-avatar{
-    width: 46px;
-    height: 46px;
-    border-radius: 999px;
-    background: #d9d9d9;
-    border: 2px solid rgba(0,0,0,0.12);
-    overflow: hidden;
-    flex: 0 0 auto;
-  }
-  .author-avatar img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .author-name{
-    text-decoration: none;
-    font-weight: 900;
-    color: #111;
-    font-size: 15px;
-  }
-
-  .meta{
-    margin-top: 8px;
-    font-size: 12px;
-    font-weight: 800;
-    color: rgba(0,0,0,0.48);
-  }
-
-  .actions-row{
-    margin-top: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .follow-btn{
-    height: 40px;
-    padding: 0 16px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.92);
-    border: 2px solid rgba(0,0,0,0.22);
-    box-shadow: 0 12px 18px rgba(0,0,0,0.12);
-    font-weight: 900;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .follow-btn:active{ transform: translateY(2px); }
-
-  /* ===== Heart like button (❤️で色が変わる) ===== */
-  .like-btn{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 14px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .like-btn:hover{ background: rgba(0,0,0,0.04); }
-
-  .heart{
-    font-size: 22px;
-    line-height: 1;
-    transition: transform 0.12s ease, filter 0.12s ease, opacity 0.12s ease;
-    opacity: 0.5; /* 通常は薄く */
-  }
-  .like-btn:active .heart{ transform: scale(0.95); }
-
-  .like-btn.liked .heart{
-    opacity: 1; /* 押したら濃く（=赤く見える） */
-  }
-
-  .like-count{
-    font-weight: 900;
-    color: rgba(0,0,0,0.75);
-  }
-
-  .divider{
-    margin: 14px 0;
-    height: 1px;
-    background: rgba(0,0,0,0.12);
-  }
-
-  .content{
-    font-size: 14px;
-    font-weight: 800;
-    color: rgba(0,0,0,0.78);
-    line-height: 1.8;
-    word-break: break-word;
-  }
-
-  .owner-row{
-    margin-top: 14px;
+  /* ===== Owner Buttons (Edit/Delete) ===== */
+  .owner-row {
+    margin-top: 20px;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
   }
 
-  .ghost-btn{
-    height: 44px;
+  .ghost-btn, .danger-btn {
+    height: 48px;
     border-radius: 14px;
-    border: 2px solid rgba(0,0,0,0.22);
-    background: rgba(255,255,255,0.92);
-    color: #111;
     font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-decoration: none;
-    display: grid;
-    place-items: center;
-    box-shadow: 0 12px 18px rgba(0,0,0,0.12);
-    -webkit-tap-highlight-color: transparent;
+    font-size: 15px;
     cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
   }
-  .ghost-btn:active{ transform: translateY(2px); }
 
-  .danger-btn{
-    height: 44px;
-    border-radius: 14px;
-    border: 0;
-    background: #ef4444;
-    color: #fff;
-    font-weight: 900;
-    box-shadow: 0 14px 22px rgba(0,0,0,0.18);
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .danger-btn:active{ transform: translateY(2px); }
+  .ghost-btn { border: 2px solid rgba(0,0,0,0.22); background: #fff; color: #111; }
+  .danger-btn { border: 0; background: #ef4444; color: #fff; }
 
-  /* ===== Drawer ===== */
-  .overlay{
+  /* ===== Drawer (一貫性重視) ===== */
+  .overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.18);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.16s ease;
+    z-index: 1000;
   }
-  .drawer{
+
+  .drawer {
     position: fixed;
     top: 0;
     right: 0;
@@ -263,76 +151,67 @@
     box-shadow: -18px 0 30px rgba(0,0,0,0.18);
     padding: 18px 16px;
     box-sizing: border-box;
-  }
-  .drawer.open{ transform: translateX(0); }
-  .overlay.open{
-    opacity: 1;
-    pointer-events: auto;
+    z-index: 1001;
   }
 
-  .drawer-top{
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .drawer.open { transform: translateX(0); }
+
+  .drawer-top {
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     padding: 4px 0 10px;
   }
-  .drawer-title{
-    font-size: 22px;
-    font-weight: 900;
-    color: #111;
-  }
-  .drawer-close{
+
+  .drawer-title { font-size: 22px; font-weight: 900; color: #111; }
+
+  .drawer-close {
     position: absolute;
     right: 2px;
     top: 0;
     width: 44px;
     height: 44px;
-    border-radius: 14px;
     border: 0;
     background: transparent;
     font-size: 28px;
     font-weight: 900;
     cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
   }
 
-  .drawer-profile{
+  .drawer-profile {
     display: flex;
     align-items: center;
     gap: 12px;
     margin: 10px 0 18px;
     justify-content: center;
   }
-  .drawer-avatar{
+
+  .drawer-avatar {
     width: 54px;
     height: 54px;
     border-radius: 999px;
     background: #d9d9d9;
     border: 2px solid rgba(0,0,0,0.12);
     overflow: hidden;
-  }
-  .drawer-avatar img{
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-  .drawer-name{
-    font-size: 18px;
-    font-weight: 900;
-    color: #111;
-    font-style: italic;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  .menu{
+  .drawer-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .drawer-name { font-size: 18px; font-weight: 900; color: #111; font-style: italic; }
+
+  .menu {
     margin-top: 8px;
     display: flex;
     flex-direction: column;
     gap: 14px;
     padding-left: 12px;
   }
-  .menu a, .menu button{
+
+  .menu a, .menu button {
     display: inline-flex;
     align-items: center;
     gap: 12px;
@@ -347,106 +226,49 @@
     border-radius: 14px;
     -webkit-tap-highlight-color: transparent;
   }
-  .menu a:hover, .menu button:hover{
-    background: rgba(255,255,255,0.55);
-  }
-  .icon{
-    width: 26px;
-    text-align: center;
-    font-size: 22px;
-  }
 
-  /* base の余白を消す保険 */
-  .site-main, .container{ padding: 0 !important; margin: 0 !important; }
+  .menu a:hover, .menu button:hover { background: rgba(255,255,255,0.55); }
+  .icon { width: 26px; text-align: center; font-size: 22px; }
+
+  /* baseの余白リセット */
+  .site-main, .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
 </style>
 
 <div class="page">
   <div class="inner">
-
-    <!-- ===== Top bar ===== -->
     <div class="topbar">
       <a class="back-btn" href="{% url 'post_list' %}">戻る</a>
-      <div class="title">投稿詳細</div>
-
+      <div style="font-size: 20px; font-weight: 900; letter-spacing: 0.02em;">投稿詳細</div>
       <button type="button" class="hamburger" id="openDrawer" aria-label="メニューを開く">
-        <div class="hamburger-lines" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </div>
+        <div class="hamburger-lines"><span></span><span></span><span></span></div>
       </button>
     </div>
 
-    <!-- ===== Card ===== -->
     <div class="card">
       <div class="post-title">{{ post.title }}</div>
-
-      <!-- 投稿者 -->
       <div class="author-row">
-        <a class="author-avatar" href="{% url 'profile:detail' post.user.username %}" aria-label="投稿者プロフィールへ">
-          {% if post.user.profile.icon %}
-            <img src="{{ post.user.profile.icon.url }}" alt="icon">
-          {% endif %}
-        </a>
-
-        <a class="author-name" href="{% url 'profile:detail' post.user.username %}">
-          {{ post.user.username }}
-        </a>
+        <div class="author-avatar">
+          {% if post.user.profile.icon %}<img src="{{ post.user.profile.icon.url }}">{% endif %}
+        </div>
+        <div class="username">{{ post.user.username }}</div>
       </div>
-
-      <div class="meta">
-        運動時間：{{ post.duration }} 分 ／ 投稿日：{{ post.created_at|date:"m/d H:i" }}
-      </div>
-
-      <!-- フォロー + ❤️ -->
-      <div class="actions-row">
-        {% if request.user.is_authenticated and request.user != post.user %}
-          <form method="post" action="{% url 'follow:toggle' post.user.username %}" style="margin:0;">
-            {% csrf_token %}
-            <button class="follow-btn" type="submit">
-              {% if is_following %}フォロー解除{% else %}フォロー{% endif %}
-            </button>
-          </form>
-        {% else %}
-          <div></div>
-        {% endif %}
-
-        <button
-          type="button"
-          class="like-btn {% if is_liked %}liked{% endif %}"
-          data-like-url="{% url 'reaction:like' post.id %}"
-          data-unlike-url="{% url 'reaction:unlike' post.id %}"
-          aria-label="いいね"
-        >
-          <span class="heart">❤️</span>
-          <span class="like-count" data-like-count="{{ post.like_count }}">{{ post.like_count }}</span>
-        </button>
-      </div>
-
-      <div class="divider"></div>
-
-      <div class="content">
-        {{ post.content|linebreaksbr }}
-      </div>
+      
+      <div class="content">{{ post.content|linebreaksbr }}</div>
 
       {% if request.user == post.user %}
         <div class="owner-row">
           <a class="ghost-btn" href="{% url 'post_edit' post.id %}">編集</a>
-
           <form method="post" action="{% url 'post_delete' post.id %}" style="margin:0;">
             {% csrf_token %}
-            <button class="danger-btn" type="submit" onclick="return confirm('この投稿を削除しますか？');">
-              削除
-            </button>
+            <button class="danger-btn" type="submit" onclick="return confirm('本当に削除しますか？');">削除</button>
           </form>
         </div>
       {% endif %}
     </div>
-
   </div>
 </div>
 
-<!-- ===== Drawer + Overlay ===== -->
 <div class="overlay" id="overlay"></div>
-
 <aside class="drawer" id="drawer" aria-label="設定メニュー">
   <div class="drawer-top">
     <div class="drawer-title">設定</div>
@@ -454,9 +276,9 @@
   </div>
 
   <div class="drawer-profile">
-    <div class="drawer-avatar" aria-hidden="true">
+    <div class="drawer-avatar">
       {% if request.user.is_authenticated and request.user.profile.icon %}
-        <img src="{{ request.user.profile.icon.url }}" alt="icon">
+        <img src="{{ request.user.profile.icon.url }}" alt="avatar">
       {% endif %}
     </div>
     <div class="drawer-name">
@@ -504,21 +326,23 @@
 </aside>
 
 <script>
-  // ===== Drawer open/close =====
   (function(){
     const openBtn = document.getElementById('openDrawer');
     const closeBtn = document.getElementById('closeDrawer');
     const overlay = document.getElementById('overlay');
     const drawer = document.getElementById('drawer');
 
-    function open(){
-      overlay.classList.add('open');
+    const open = () => {
       drawer.classList.add('open');
-    }
-    function close(){
-      overlay.classList.remove('open');
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden'; 
+    };
+
+    const close = () => {
       drawer.classList.remove('open');
-    }
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    };
 
     openBtn?.addEventListener('click', open);
     closeBtn?.addEventListener('click', close);
@@ -528,78 +352,5 @@
       if (e.key === 'Escape') close();
     });
   })();
-
-  // ===== CSRF util =====
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
-  }
-
-  // ===== Heart Like Toggle =====
-  (function(){
-    const isAuthed = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
-    const loginUrl = "{% url 'login' %}";
-    const csrftoken = getCookie('csrftoken');
-
-    function setCount(btn, next){
-      const countEl = btn.querySelector('[data-like-count]');
-      if (!countEl) return;
-      const n = Math.max(0, next);
-      countEl.setAttribute('data-like-count', String(n));
-      countEl.textContent = String(n);
-    }
-
-    async function post(url){
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': csrftoken || '',
-          'X-Requested-With': 'XMLHttpRequest'
-        },
-        credentials: 'same-origin',
-      });
-      return res.ok;
-    }
-
-    const btn = document.querySelector('.like-btn');
-    if (!btn) return;
-
-    btn.addEventListener('click', async () => {
-      if (!isAuthed){
-        window.location.href = loginUrl;
-        return;
-      }
-
-      const liked = btn.classList.contains('liked');
-      const url = liked ? btn.dataset.unlikeUrl : btn.dataset.likeUrl;
-
-      const now = parseInt(btn.querySelector('[data-like-count]')?.getAttribute('data-like-count') || '0', 10);
-      const optimistic = liked ? now - 1 : now + 1;
-
-      // optimistic UI
-      if (liked) btn.classList.remove('liked');
-      else btn.classList.add('liked');
-      setCount(btn, optimistic);
-
-      try{
-        const ok = await post(url);
-        if (!ok){
-          // rollback
-          if (liked) btn.classList.add('liked');
-          else btn.classList.remove('liked');
-          setCount(btn, now);
-          alert('いいねの更新に失敗しました。もう一度お試しください。');
-        }
-      }catch(e){
-        if (liked) btn.classList.add('liked');
-        else btn.classList.remove('liked');
-        setCount(btn, now);
-        alert('通信に失敗しました。ネットワークを確認してください。');
-      }
-    });
-  })();
 </script>
-
 {% endblock %}
