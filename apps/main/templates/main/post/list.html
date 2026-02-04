@@ -393,7 +393,15 @@
     <!-- ===== Top bar ===== -->
     <div class="topbar">
       {% if request.user.is_authenticated %}
-        <a class="avatar-link" href="{% url 'profile:detail' request.user.username %}" aria-label="マイページへ"></a>
+       <a class="avatar-link"
+       href="{% url 'profile:detail' request.user.username %}"
+       aria-label="マイページへ">
+
+      {% if request.user.profile.icon %}
+        <img src="{{ request.user.profile.icon.url }}" alt="avatar">
+      {% endif %}
+
+    </a>
       {% else %}
         <a class="avatar-link" href="{% url 'login' %}" aria-label="ログインへ"></a>
       {% endif %}
@@ -440,12 +448,11 @@
           <div class="card-head">
 
             {# ★ここ：投稿者アイコンを押したら投稿者プロフィールへ #}
-            <a
-              class="mini-avatar-link"
-              href="{% url 'profile:detail' post.user.username %}"
-              aria-label="{{ post.user.username }}のプロフィールへ"
-              title="{{ post.user.username }}"
-            >
+            <a class="mini-avatar-link"
+                href="{% url 'profile:detail' post.user.username %}">
+                {% if post.user.profile.icon %}
+                    <img src="{{ post.user.profile.icon.url }}" alt="{{ post.user.username }}">
+                {% endif %}
               {# もし投稿者の画像URLがあるならここに <img src="..."> を入れてOK #}
             </a>
 
