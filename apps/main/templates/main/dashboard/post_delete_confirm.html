@@ -1,3 +1,5 @@
+{% load static %}
+{% block content %}
 <h1>投稿削除確認</h1>
 
 <p>本当にこの投稿を削除しますか？</p>
@@ -8,3 +10,4 @@
   <button type="submit">削除する</button>
   <a href="{% url 'dashboard:post_list' %}">キャンセル</a>
 </form>
+{% endblock %}

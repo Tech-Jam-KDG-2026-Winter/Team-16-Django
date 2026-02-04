@@ -4,7 +4,7 @@ from django.views.decorators.http import require_POST
 from django.http import HttpResponseForbidden
 
 from django.contrib.auth.models import User
-from apps.main.models import Profile
+from apps.main.models import Profile, Follow
 from apps.main.forms.profile_forms import ProfileForm
 
 from apps.main.models import ExercisePost
@@ -12,17 +12,26 @@ from apps.main.models import ExercisePost
 
 def profile_detail(request, username):
     user = get_object_or_404(User, username=username)
-    profile, _ = Profile.objects.get_or_create(user=user)
+    profile = getattr(user, "profile", None)
 
-    # ★ このユーザーの投稿一覧
+    # 👇 ここに書く
+    is_following = False
+    if request.user.is_authenticated and request.user != user:
+        is_following = Follow.objects.filter(
+            follower=request.user,
+            following=user
+        ).exists()
+
     posts = ExercisePost.objects.filter(user=user).order_by("-created_at")
 
     return render(request, "main/profile/detail.html", {
-        "profile_user": user,
+        "user_obj": user,
         "profile": profile,
-        "posts": posts,   # ← 追加
+        "is_following": is_following,
+        "posts": posts,
+        "followers_count": user.followers.count(),
+        "following_count": user.following.count(),
     })
-
 
 @login_required
 def profile_edit(request):

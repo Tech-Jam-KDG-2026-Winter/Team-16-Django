@@ -1,32 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <title>{{ post.title }}</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background: #f5f6f8;
+        }
+        .card {
+            max-width: 700px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 10px;
+        }
+        .author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .author img {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+        }
+        .author a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #333;
+        }
+        .meta {
+            color: #777;
+            font-size: 14px;
+        }
+        button {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+
+<div class="card">
     <h1>{{ post.title }}</h1>
 
-    <p>投稿者：{{ post.user.username }}</p>
-    <p>運動時間：{{ post.duration }} 分</p>
-    <p>投稿日：{{ post.created_at }}</p>
+    <!-- 投稿者（プロフィールリンク） -->
+    <div class="author">
+        <a href="{% url 'profile:detail' post.user.username %}">
+            {% if post.user.profile.image %}
+                <img src="{{ post.user.profile.image.url }}" alt="icon">
+            {% endif %}
+        </a>
+        <a href="{% url 'profile:detail' post.user.username %}">
+            {{ post.user.username }}
+        </a>
+    </div>
+
+    <p class="meta">
+        運動時間：{{ post.duration }} 分 ／ 投稿日：{{ post.created_at }}
+    </p>
+
+    <!-- フォロー -->
+    {% if request.user.is_authenticated and request.user != post.user %}
+        <form method="post" action="{% url 'follow:toggle' post.user.username %}">
+            {% csrf_token %}
+            <button>
+                {% if is_following %}フォロー解除{% else %}フォロー{% endif %}
+            </button>
+        </form>
+    {% endif %}
+
+    <p>❤️ {{ post.like_count }}</p>
+
+    {% if request.user.is_authenticated %}
+        {% if is_liked %}
+            <form method="post" action="{% url 'reaction:unlike' post.id %}">
+                {% csrf_token %}
+                <button>いいね解除</button>
+            </form>
+        {% else %}
+            <form method="post" action="{% url 'reaction:like' post.id %}">
+                {% csrf_token %}
+                <button>いいね</button>
+            </form>
+        {% endif %}
+    {% endif %}
 
     <hr>
 
     <p>{{ post.content }}</p>
 
-    <hr>
-
     {% if request.user == post.user %}
         <a href="{% url 'post_edit' post.id %}">編集</a>
-
         <form method="post" action="{% url 'post_delete' post.id %}" style="display:inline;">
             {% csrf_token %}
-            <button type="submit">削除</button>
+            <button>削除</button>
         </form>
     {% endif %}
 
     <br><br>
     <a href="{% url 'post_list' %}">← 一覧に戻る</a>
+</div>
+
 </body>
 </html>
+{% endblock %}
