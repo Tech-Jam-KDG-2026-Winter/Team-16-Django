@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% load static %}
 
@@ -15,6 +16,7 @@
     display: flex;
     justify-content: center;
     box-sizing: border-box;
+    overflow-x: hidden; /* 右側の隙間防止 */
   }
   .inner{
     width: min(390px, 100%);
@@ -131,7 +133,6 @@
     align-items: center;
   }
 
-  /* アイコン（押したらプロフィールへ） */
   .avatar-link{
     width: 56px;
     height: 56px;
@@ -158,7 +159,6 @@
   }
   .name-link:hover{ text-decoration: underline; }
 
-  /* 右側：関係（フォロー中） or 友達 */
   .relation{
     font-size: 16px;
     font-weight: 900;
@@ -175,6 +175,7 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.16s ease;
+    z-index: 1000;
   }
   .drawer{
     position: fixed;
@@ -188,6 +189,7 @@
     box-shadow: -18px 0 30px rgba(0,0,0,0.18);
     padding: 18px 16px;
     box-sizing: border-box;
+    z-index: 1001;
   }
   .drawer.open{ transform: translateX(0); }
   .overlay.open{
@@ -202,11 +204,7 @@
     position: relative;
     padding: 4px 0 10px;
   }
-  .drawer-title{
-    font-size: 22px;
-    font-weight: 900;
-    color: #111;
-  }
+  .drawer-title{ font-size: 22px; font-weight: 900; color: #111; }
   .drawer-close{
     position: absolute;
     right: 2px;
@@ -235,6 +233,16 @@
     border-radius: 999px;
     background: #d9d9d9;
     border: 2px solid rgba(0,0,0,0.12);
+    overflow: hidden; /* 追加 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .drawer-avatar img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .drawer-name{
     font-size: 18px;
@@ -265,23 +273,15 @@
     border-radius: 14px;
     -webkit-tap-highlight-color: transparent;
   }
-  .menu a:hover, .menu button:hover{
-    background: rgba(255,255,255,0.55);
-  }
-  .icon{
-    width: 26px;
-    text-align: center;
-    font-size: 22px;
-  }
+  .menu a:hover, .menu button:hover{ background: rgba(255,255,255,0.55); }
+  .icon{ width: 26px; text-align: center; font-size: 22px; }
 
-  /* base の余白を消す保険 */
   .site-main, .container{ padding: 0 !important; margin: 0 !important; }
 </style>
 
 <div class="page">
   <div class="inner">
 
-    <!-- ===== Topbar ===== -->
     <div class="topbar">
       <a class="back-btn" href="{% url 'profile:detail' user_obj.username %}">戻る</a>
       <div class="title">フォロー一覧</div>
@@ -293,28 +293,24 @@
       </button>
     </div>
 
-    <!-- ===== Tabs ===== -->
     <div class="tabs">
       <a class="tab" href="{% url 'follow:followers' user_obj.username %}">フォロワー</a>
       <a class="tab active">フォロー中</a>
     </div>
 
-    <!-- ===== List ===== -->
     <div class="list">
       {% for u in users %}
         <div class="row">
-
-          <!-- アイコン：押したらそのユーザーのプロフィールへ -->
           <a class="avatar-link" href="{% url 'profile:detail' u.username %}" aria-label="{{ u.username }}のプロフィールへ">
-            {# 画像があるならここに <img src="..."> を入れてOK #}
+            {% if u.profile.icon %}
+              <img src="{{ u.profile.icon.url }}" alt="{{ u.username }}">
+            {% endif %}
           </a>
 
-          <!-- ユーザーネーム：押してもプロフィールへ -->
           <a class="name-link" href="{% url 'profile:detail' u.username %}">
             {{ u.username }}
           </a>
 
-          <!-- 関係：相互なら友達、そうでなければフォロー中 -->
           <div class="relation">
             {% if u.id in follower_ids %}
               友達
@@ -322,7 +318,6 @@
               フォロー中
             {% endif %}
           </div>
-
         </div>
       {% empty %}
         <div style="text-align:center; font-weight:900; padding:20px 0; color:rgba(0,0,0,0.55);">
@@ -334,7 +329,6 @@
   </div>
 </div>
 
-<!-- ===== Drawer + Overlay ===== -->
 <div class="overlay" id="overlay"></div>
 
 <aside class="drawer" id="drawer" aria-label="設定メニュー">
@@ -344,7 +338,11 @@
   </div>
 
   <div class="drawer-profile">
-    <div class="drawer-avatar" aria-hidden="true"></div>
+    <div class="drawer-avatar">
+      {% if request.user.is_authenticated and request.user.profile.icon %}
+        <img src="{{ request.user.profile.icon.url }}" alt="avatar">
+      {% endif %}
+    </div>
     <div class="drawer-name">
       {% if request.user.is_authenticated %}
         {{ request.user.username }}
@@ -390,7 +388,6 @@
 </aside>
 
 <script>
-  // ===== Drawer open/close =====
   (function(){
     const openBtn = document.getElementById('openDrawer');
     const closeBtn = document.getElementById('closeDrawer');
