@@ -1,106 +1,668 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block content %}
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>投稿一覧</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            background: #f5f6f8;
-        }
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-        }
-        .post {
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-        }
-        .post h2 a {
-            text-decoration: none;
-            color: #333;
-        }
-        .author a {
-            text-decoration: none;
-            font-weight: bold;
-            color: #555;
-        }
-        .meta {
-            font-size: 14px;
-            color: #777;
-        }
-    </style>
-</head>
-<body>
-<form method="get" action="{% url 'search:search' %}" style="margin-bottom: 16px;">
-    <input
-        type="text"
-        name="q"
-        placeholder="タイトル・内容で検索"
-        value="{{ query|default:'' }}"
-        style="padding: 6px; width: 60%;"
-    >
-    <button type="submit">検索</button>
-</form>
-<div style="margin-bottom: 20px;">
-    <a href="{% url 'search:sort' %}?sort=new">🕒 新着順</a> |
-    <a href="{% url 'search:sort' %}?sort=like">❤️ いいね順</a> |
-    <a href="{% url 'search:sort' %}?sort=follow">👤 フォロー中</a>
-</div>
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
 
+{% block main_container %}
 
-<div class="container">
-    <h1>運動記録一覧</h1>
+<style>
+  /* ===== Post List + Drawer (スマホ想定 390x844) ===== */
+  .page{
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .inner{
+    width: min(390px, 100%);
+    padding: 18px 16px 90px;
+    box-sizing: border-box;
+    position: relative;
+  }
 
-    <a href="{% url 'post_create' %}">＋ 新しい記録を作成</a>
-    <hr>
+  /* ===== Top bar ===== */
+  .topbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 2px 12px;
+  }
 
-    {% for post in posts %}
-        <div class="post">
-            <h2>
-                <a href="{% url 'post_detail' post.id %}">
-                    {{ post.title }}
-                </a>
-            </h2>
+  /* 左上の丸（自分のアイコン） */
+  .avatar-link{
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    background: #d9d9d9;
+    border: 2px solid rgba(0,0,0,0.35);
+    display: inline-block;
+    text-decoration: none;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .avatar-link img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 
-            <p class="author">
-                投稿者：
-                <a href="{% url 'profile:detail' post.user.username %}">
-                    {{ post.user.username }}
-                </a>
-            </p>
+  .title{
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    color: #111;
+  }
+  .hamburger{
+    width: 54px;
+    height: 46px;
+    border-radius: 14px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hamburger-lines{
+    width: 34px;
+    height: 22px;
+    position: relative;
+  }
+  .hamburger-lines span{
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 999px;
+    background: #111;
+  }
+  .hamburger-lines span:nth-child(1){ top: 0; }
+  .hamburger-lines span:nth-child(2){ top: 9px; }
+  .hamburger-lines span:nth-child(3){ bottom: 0; }
 
-            <p class="meta">
-                運動時間：{{ post.duration }}分 ／ 投稿日：{{ post.created_at }}
-            </p>
+  /* ===== Search + Sort row ===== */
+  .controls{
+    display: grid;
+    grid-template-columns: 1fr 120px;
+    gap: 12px;
+    align-items: center;
+    margin: 6px 0 14px;
+  }
 
-            <p>❤️ {{ post.like_count }}</p>
+  .search-wrap{ position: relative; }
+  .search-input{
+    width: 100%;
+    height: 42px;
+    border-radius: 999px;
+    border: 2px solid rgba(0,0,0,0.35);
+    background: rgba(255,255,255,0.92);
+    padding: 0 14px 0 40px;
+    box-sizing: border-box;
+    outline: none;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .search-input::placeholder{
+    color: rgba(0,0,0,0.45);
+    font-weight: 800;
+  }
+  .search-icon{
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    opacity: 0.65;
+    pointer-events: none;
+  }
 
-            {% if request.user.is_authenticated %}
-                {% if post.id in liked_post_ids %}
-                    <form method="post" action="{% url 'reaction:unlike' post.id %}">
-                        {% csrf_token %}
-                        <button>いいね解除</button>
-                    </form>
-                {% else %}
-                    <form method="post" action="{% url 'reaction:like' post.id %}">
-                        {% csrf_token %}
-                        <button>いいね</button>
-                    </form>
-                {% endif %}
-            {% endif %}
+  .sort-select{
+    width: 100%;
+    height: 42px;
+    border-radius: 12px;
+    border: 2px solid rgba(0,0,0,0.35);
+    background: rgba(255,255,255,0.92);
+    font-size: 14px;
+    font-weight: 800;
+    padding: 0 10px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* ===== Post cards ===== */
+  .posts{
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 6px;
+  }
+
+  .card{
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(0,0,0,0.18);
+    border-radius: 22px;
+    padding: 14px 14px 12px;
+    box-shadow: 0 10px 18px rgba(0,0,0,0.10);
+    overflow: hidden;
+  }
+
+  .card-head{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  /* 投稿者アイコン：押せるように a にする */
+  .mini-avatar-link{
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    background: #d9d9d9;
+    border: 2px solid rgba(0,0,0,0.12);
+    flex: 0 0 auto;
+    display: inline-block;
+    overflow: hidden;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s ease, filter 0.12s ease;
+  }
+  .mini-avatar-link:hover{ filter: brightness(0.98); }
+  .mini-avatar-link:active{ transform: scale(0.98); }
+  .mini-avatar-link img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-meta{
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .username{
+    font-size: 16px;
+    font-weight: 900;
+    color: #111;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .time{
+    font-size: 12px;
+    font-weight: 800;
+    color: rgba(0,0,0,0.45);
+  }
+
+  .card-body{ min-height: 56px; }
+  .post-title{
+    font-size: 15px;
+    font-weight: 900;
+    color: #111;
+    text-decoration: none;
+  }
+  .post-title:hover{ text-decoration: underline; }
+  .post-text{
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(0,0,0,0.75);
+    line-height: 1.6;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+  }
+
+  .card-foot{
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ===== いいね（♡/❤️ 切り替え） ===== */
+  .like-btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .like-btn:hover{
+    background: rgba(0,0,0,0.04);
+  }
+
+  .heart{
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+    transition: transform 0.12s ease;
+  }
+  .like-btn:active .heart{ transform: scale(0.95); }
+
+  .like-count{
+    font-weight: 900;
+    color: rgba(0,0,0,0.75);
+  }
+
+  /* ===== Floating + button ===== */
+  .fab{
+    position: fixed;
+    right: 18px;
+    bottom: 22px;
+    width: 66px;
+    height: 66px;
+    border-radius: 999px;
+    background: #3b82f6;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    text-decoration: none;
+    box-shadow: 0 16px 26px rgba(0,0,0,0.22);
+    font-size: 40px;
+    font-weight: 800;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fab:active{ transform: translateY(2px); }
+
+  /* ===== Drawer ===== */
+  .overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.18);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.16s ease;
+  }
+  .drawer{
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(320px, 86vw);
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    transform: translateX(102%);
+    transition: transform 0.18s ease;
+    box-shadow: -18px 0 30px rgba(0,0,0,0.18);
+    padding: 18px 16px;
+    box-sizing: border-box;
+  }
+  .drawer.open{ transform: translateX(0); }
+  .overlay.open{
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .drawer-top{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 4px 0 10px;
+  }
+  .drawer-title{
+    font-size: 22px;
+    font-weight: 900;
+    color: #111;
+  }
+  .drawer-close{
+    position: absolute;
+    right: 2px;
+    top: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 900;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .drawer-profile{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0 18px;
+    justify-content: center;
+  }
+  .drawer-avatar{
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
+    background: #d9d9d9;
+    border: 2px solid rgba(0,0,0,0.12);
+  }
+  .drawer-name{
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+    font-style: italic;
+  }
+
+  .menu{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-left: 12px;
+  }
+  .menu a, .menu button{
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 900;
+    color: #111;
+    text-decoration: none;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    padding: 10px 8px;
+    border-radius: 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu a:hover, .menu button:hover{
+    background: rgba(255,255,255,0.55);
+  }
+  .icon{
+    width: 26px;
+    text-align: center;
+    font-size: 22px;
+  }
+
+  /* base の余白を消す保険 */
+  .site-main, .container{ padding: 0 !important; margin: 0 !important; }
+</style>
+
+<div class="page">
+  <div class="inner">
+
+    <!-- ===== Top bar ===== -->
+    <div class="topbar">
+      {% if request.user.is_authenticated %}
+        <a class="avatar-link" href="{% url 'profile:detail' request.user.username %}" aria-label="マイページへ"></a>
+      {% else %}
+        <a class="avatar-link" href="{% url 'login' %}" aria-label="ログインへ"></a>
+      {% endif %}
+
+      <div class="title">投稿一覧</div>
+
+      <button type="button" class="hamburger" id="openDrawer" aria-label="メニューを開く">
+        <div class="hamburger-lines" aria-hidden="true">
+          <span></span><span></span><span></span>
         </div>
-    {% empty %}
-        <p>まだ投稿がありません。</p>
-    {% endfor %}
+      </button>
+    </div>
+
+    <!-- ===== Search + Sort ===== -->
+    <form method="get" action="{% url 'search:search' %}">
+      <div class="controls">
+        <div class="search-wrap">
+          <div class="search-icon">🔍</div>
+          <input
+            class="search-input"
+            type="text"
+            name="q"
+            placeholder="検索…"
+            value="{{ query|default:'' }}"
+          >
+        </div>
+
+        <select
+          class="sort-select"
+          name="sort"
+          onchange="this.form.action='{% url 'search:sort' %}'; this.form.submit();"
+        >
+          <option value="new" {% if sort == 'new' %}selected{% endif %}>新着順</option>
+          <option value="like" {% if sort == 'like' %}selected{% endif %}>いいね順</option>
+          <option value="follow" {% if sort == 'follow' %}selected{% endif %}>フォロー中</option>
+        </select>
+      </div>
+    </form>
+
+    <!-- ===== Posts ===== -->
+    <div class="posts">
+      {% for post in posts %}
+        <div class="card">
+          <div class="card-head">
+
+            {# ★ここ：投稿者アイコンを押したら投稿者プロフィールへ #}
+            <a
+              class="mini-avatar-link"
+              href="{% url 'profile:detail' post.user.username %}"
+              aria-label="{{ post.user.username }}のプロフィールへ"
+              title="{{ post.user.username }}"
+            >
+              {# もし投稿者の画像URLがあるならここに <img src="..."> を入れてOK #}
+            </a>
+
+            <div class="card-meta">
+              <div class="username">{{ post.user.username }}</div>
+              <div class="time">{{ post.created_at|date:"m/dH:i" }}</div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <a class="post-title" href="{% url 'post_detail' post.id %}">
+              {{ post.title }}
+            </a>
+            {% if post.content %}
+              <div class="post-text">{{ post.content }}</div>
+            {% endif %}
+          </div>
+
+          <div class="card-foot">
+            <button
+              type="button"
+              class="like-btn"
+              data-liked="{% if post.id in liked_post_ids %}1{% else %}0{% endif %}"
+              data-post-id="{{ post.id }}"
+              data-like-url="{% url 'reaction:like' post.id %}"
+              data-unlike-url="{% url 'reaction:unlike' post.id %}"
+              aria-label="いいね"
+            >
+              <span class="heart">
+                {% if post.id in liked_post_ids %}❤️{% else %}♡{% endif %}
+              </span>
+              <span class="like-count" data-like-count="{{ post.like_count }}">{{ post.like_count }}</span>
+            </button>
+          </div>
+        </div>
+      {% empty %}
+        <div class="card">
+          <div style="font-weight:900; text-align:center; padding:14px 0;">
+            まだ投稿がありません。
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Floating + -->
+    <a class="fab" href="{% url 'post_create' %}" aria-label="投稿を作成">＋</a>
+
+  </div>
 </div>
 
-</body>
-</html>
+<!-- ===== Drawer + Overlay ===== -->
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="設定メニュー">
+  <div class="drawer-top">
+    <div class="drawer-title">設定</div>
+    <button type="button" class="drawer-close" id="closeDrawer" aria-label="閉じる">×</button>
+  </div>
+
+  <div class="drawer-profile">
+    <div class="drawer-avatar" aria-hidden="true"></div>
+    <div class="drawer-name">
+      {% if request.user.is_authenticated %}
+        {{ request.user.username }}
+      {% else %}
+        guest
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="menu">
+    <a href="{% url 'post_list' %}">
+      <span class="icon">🏠</span>
+      <span>ホーム</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'profile:detail' request.user.username %}">
+        <span class="icon">👤</span>
+        <span>ユーザー設定</span>
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}">
+        <span class="icon">👤</span>
+        <span>ログイン</span>
+      </a>
+    {% endif %}
+
+    <a href="javascript:void(0)" onclick="alert('通知設定は未接続です');">
+      <span class="icon">🔔</span>
+      <span>通知設定</span>
+    </a>
+
+    {% if request.user.is_authenticated %}
+      <form method="post" action="{% url 'logout' %}" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit">
+          <span class="icon">🚪</span>
+          <span>ログアウト</span>
+        </button>
+      </form>
+    {% endif %}
+  </div>
+</aside>
+
+<script>
+  // ===== Drawer open/close =====
+  (function(){
+    const openBtn = document.getElementById('openDrawer');
+    const closeBtn = document.getElementById('closeDrawer');
+    const overlay = document.getElementById('overlay');
+    const drawer = document.getElementById('drawer');
+
+    function open(){
+      overlay.classList.add('open');
+      drawer.classList.add('open');
+    }
+    function close(){
+      overlay.classList.remove('open');
+      drawer.classList.remove('open');
+    }
+
+    openBtn?.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    overlay?.addEventListener('click', close);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') close();
+    });
+  })();
+
+  // ===== CSRF util (Django標準cookie) =====
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+  }
+
+  // ===== Heart Like Toggle (♡ ⇄ ❤️) =====
+  (function(){
+    const isAuthed = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+    const loginUrl = "{% url 'login' %}";
+    const csrftoken = getCookie('csrftoken');
+
+    function updateCount(btn, delta){
+      const countEl = btn.querySelector('[data-like-count]');
+      if (!countEl) return;
+      const now = parseInt(countEl.getAttribute('data-like-count') || '0', 10);
+      const next = Math.max(0, now + delta);
+      countEl.setAttribute('data-like-count', String(next));
+      countEl.textContent = String(next);
+    }
+
+    function setHeart(btn, liked){
+      const heartEl = btn.querySelector('.heart');
+      if (!heartEl) return;
+      heartEl.textContent = liked ? '❤️' : '♡';
+      btn.dataset.liked = liked ? '1' : '0';
+    }
+
+    async function post(url){
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken || '',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'same-origin',
+      });
+      return res.ok;
+    }
+
+    document.querySelectorAll('.like-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        if (!isAuthed){
+          window.location.href = loginUrl;
+          return;
+        }
+
+        const liked = btn.dataset.liked === '1';
+        const url = liked ? btn.dataset.unlikeUrl : btn.dataset.likeUrl;
+
+        // UI即反映
+        if (liked){
+          setHeart(btn, false);
+          updateCount(btn, -1);
+        }else{
+          setHeart(btn, true);
+          updateCount(btn, +1);
+        }
+
+        // サーバ反映（失敗時戻す）
+        try{
+          const ok = await post(url);
+          if (!ok){
+            if (liked){
+              setHeart(btn, true);
+              updateCount(btn, +1);
+            }else{
+              setHeart(btn, false);
+              updateCount(btn, -1);
+            }
+            alert('いいねの更新に失敗しました。もう一度お試しください。');
+          }
+        }catch(e){
+          if (liked){
+            setHeart(btn, true);
+            updateCount(btn, +1);
+          }else{
+            setHeart(btn, false);
+            updateCount(btn, -1);
+          }
+          alert('通信に失敗しました。ネットワークを確認してください。');
+        }
+      });
+    });})();
+</script>
+
 {% endblock %}

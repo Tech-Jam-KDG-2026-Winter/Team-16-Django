@@ -1,35 +1,162 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>投稿編集</title>
-</head>
-<body>
-    <h1>投稿を編集</h1>
+{% extends "base.html" %}
+{% load static %}
 
-    <form method="post">
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block main_container %}
+
+<style>
+  /* ===== Post Edit (スマホ想定 390x844) ===== */
+  .page{
+    min-height: 100vh;
+    width: 100%;
+    background: linear-gradient(180deg, #bfe0ff 0%, #eaf5ff 48%, #ffffff 100%);
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+  .inner{
+    width: min(390px, 100%);
+    padding: 18px 16px 40px;
+    box-sizing: border-box;
+  }
+
+  /* Top bar */
+  .topbar{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 2px 18px;
+  }
+
+  .back-btn{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.92);
+    color: #111;
+    text-decoration: none;
+    font-weight: 900;
+    border: 2px solid rgba(0,0,0,0.35);
+    box-shadow: 0 10px 16px rgba(0,0,0,0.14);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .title{
+    font-size: 28px;
+    font-weight: 900;
+    color: #111;
+  }
+
+  .spacer{ width: 44px; height: 44px; }
+
+  /* Card */
+  .card{
+    background: rgba(255,255,255,0.92);
+    border: 2px solid rgba(0,0,0,0.18);
+    border-radius: 24px;
+    padding: 18px 16px;
+    box-shadow: 0 12px 20px rgba(0,0,0,0.12);
+  }
+
+  .field{
+    margin-bottom: 18px;
+  }
+
+  .label{
+    display: block;
+    font-size: 14px;
+    font-weight: 900;
+    margin: 0 0 8px 4px;
+    color: rgba(0,0,0,0.78);
+  }
+
+  .input, .textarea{
+    width: 100%;
+    border-radius: 16px;
+    border: 2px solid rgba(0,0,0,0.25);
+    background: rgba(255,255,255,0.98);
+    font-size: 14px;
+    font-weight: 800;
+    color: #111;
+    outline: none;
+    box-sizing: border-box;
+  }
+
+  .input{
+    height: 46px;
+    padding: 0 14px;
+  }
+
+  /* ===== ここを拡張 ===== */
+  .textarea{
+    min-height: 300px;
+    padding: 16px 16px;
+    line-height: 1.8;
+    resize: vertical;
+  }
+
+  .input:focus, .textarea:focus{
+    border-color: rgba(0,0,0,0.4);
+    box-shadow: 0 0 0 4px rgba(59,130,246,0.18);
+  }
+
+  .submit-btn{
+    width: 100%;
+    height: 52px;
+    border-radius: 999px;
+    border: 0;
+    background: #3b82f6;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 16px 24px rgba(0,0,0,0.18);
+  }
+
+  .site-main, .container{
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+</style>
+
+<div class="page">
+  <div class="inner">
+
+    <div class="topbar">
+      <a class="back-btn" href="{% url 'post_detail' post.id %}">戻る</a>
+      <div class="title">投稿編集</div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="card">
+      <form method="post">
         {% csrf_token %}
 
-        <div>
-            <label>タイトル</label><br>
-            <input type="text" name="title" value="{{ post.title }}" required>
+        <div class="field">
+          <label class="label">タイトル</label>
+          <input class="input" type="text" name="title" value="{{ post.title }}" required>
         </div>
 
-        <div>
-            <label>運動内容</label><br>
-            <textarea name="content" required>{{ post.content }}</textarea>
+        <div class="field">
+          <label class="label">運動内容</label>
+          <textarea class="textarea" name="content" required>{{ post.content }}</textarea>
         </div>
 
-        <div>
-            <label>運動時間（分）</label><br>
-            <input type="number" name="duration" value="{{ post.duration }}" required>
+        <div class="field">
+          <label class="label">運動時間（分）</label>
+          <input class="input" type="number" name="duration" value="{{ post.duration }}" required>
         </div>
 
-        <br>
-        <button type="submit">更新</button>
-    </form>
+        <button class="submit-btn" type="submit">更新</button>
+      </form>
+    </div>
 
-    <br>
-    <a href="{% url 'post_detail' post.id %}">← 詳細に戻る</a>
-</body>
-</html>
+  </div>
+</div>
+
+{% endblock %}
